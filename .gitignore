@@ -1,3 +1,4 @@
 *.o
+*.am
 .vscode
 preassembler
