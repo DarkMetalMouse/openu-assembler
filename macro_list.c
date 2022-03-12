@@ -90,3 +90,30 @@ macro *ml_get(macro_list *list, char *name)
 
     return NULL;
 }
+
+void m_destroy(macro *m)
+{
+    int i = 0;
+    char *line;
+    while ((line = m_get_line(m, i)) != NULL)
+    {
+        free(line);
+        i++;
+    }
+    free(m->lines);
+    free(m->name);
+    free(m);
+}
+
+void ml_destroy(macro_list *list)
+{
+    macro *ptr = list->head;
+    macro *tmp;
+    while (ptr != NULL)
+    {
+        tmp = ptr;
+        ptr = ptr->next;
+        m_destroy(tmp);
+    }
+    free(list);
+}

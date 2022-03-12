@@ -54,7 +54,8 @@ FILE *parsefile(FILE *fp, char name[])
     char line[MAX_LINE + 1];
     int in_macro = 0;
     macro *m;
-    FILE *out = fopen(get_file_name(name), "w");
+    char *fname = get_file_name(name);
+    FILE *out = fopen(fname, "w");
     while (NULL != fgets(line, MAX_LINE, fp))
     {
         int i = 0;
@@ -108,6 +109,9 @@ FILE *parsefile(FILE *fp, char name[])
             }
         }
     }
+    ml_destroy(macros);
+    free(fname);
+    return out;
 }
 
 int main(int argc, char const *argv[])
