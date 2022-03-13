@@ -1,0 +1,23 @@
+OBJS	= preassembler.o macro_list.o util.o
+SOURCE	= preassembler.c macro_list.c util.c
+HEADER	= macro_list.h util.h
+OUT	= preassembler
+CC	 = gcc
+FLAGS	 = -g -c -Wall
+LFLAGS	 = 
+
+all: $(OBJS)
+	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
+
+preassembler.o: preassembler.c
+	$(CC) $(FLAGS) preassembler.c 
+
+macro_list.o: macro_list.c
+	$(CC) $(FLAGS) macro_list.c 
+
+util.o: util.c
+	$(CC) $(FLAGS) util.c 
+
+
+clean:
+	rm -f $(OBJS) $(OUT)

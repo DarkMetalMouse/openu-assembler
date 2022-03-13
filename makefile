@@ -1,7 +1,7 @@
-OBJS	= preassembler.o macro_list.o
-SOURCE	= preassembler.c macro_list.c
-HEADER	= macro_list.h
-OUT	= preassembler
+OBJS	= util.o symbol_list.o
+SOURCE	= util.c symbol_list.c
+HEADER	= util.h symbol_list.h
+OUT	= symbol_list
 CC	 = gcc
 FLAGS	 = -g -c -Wall
 LFLAGS	 = 
@@ -9,11 +9,11 @@ LFLAGS	 =
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-preassembler.o: preassembler.c
-	$(CC) $(FLAGS) preassembler.c 
+util.o: util.c
+	$(CC) $(FLAGS) util.c 
 
-macro_list.o: macro_list.c
-	$(CC) $(FLAGS) macro_list.c 
+symbol_list.o: symbol_list.c
+	$(CC) $(FLAGS) symbol_list.c 
 
 
 clean:
