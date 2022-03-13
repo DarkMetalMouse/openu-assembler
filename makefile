@@ -1,7 +1,7 @@
-OBJS	= util.o symbol_list.o
-SOURCE	= util.c symbol_list.c
-HEADER	= util.h symbol_list.h
-OUT	= symbol_list
+OBJS	= data_list.o
+SOURCE	= data_list.c
+HEADER	= data_list.h
+OUT	= data_list
 CC	 = gcc
 FLAGS	 = -g -c -Wall
 LFLAGS	 = 
@@ -9,11 +9,8 @@ LFLAGS	 =
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-util.o: util.c
-	$(CC) $(FLAGS) util.c 
-
-symbol_list.o: symbol_list.c
-	$(CC) $(FLAGS) symbol_list.c 
+data_list.o: data_list.c
+	$(CC) $(FLAGS) data_list.c 
 
 
 clean:
