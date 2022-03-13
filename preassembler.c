@@ -114,9 +114,9 @@ FILE *parsefile(FILE *fp, char name[])
     return out;
 }
 
-int main(int argc, char const *argv[])
+/*int main(int argc, char const *argv[])
 {
     FILE *fp = fopen("preassembler_test_1.txt", "r");
     parsefile(fp, "preassembler");
     return 0;
-}
+}*/

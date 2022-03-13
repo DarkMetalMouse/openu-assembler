@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "macro_list.h"
+#include "util.h"
 
 #define INITIAL_LINE_COUNT 20
-#define MAX_LINE 80
+
 
 typedef struct macro
 {
@@ -25,9 +26,7 @@ typedef struct macro_list
 macro *m_create(char name[])
 {
     macro *m = malloc(sizeof(macro));
-    char *copy = malloc(sizeof(char *) * MAX_LINE);
-    strcpy(copy, name);
-    m->name = copy;
+    m->name = dupstr(name);
     m->lines = malloc(sizeof(char *) * INITIAL_LINE_COUNT);
     m->line_count = INITIAL_LINE_COUNT;
     m->lines_filled = 0;
@@ -38,15 +37,13 @@ macro *m_create(char name[])
 
 void m_append(macro *m, char *line)
 {
-    char *copy = malloc(sizeof(char *) * MAX_LINE);
     if (m->lines_filled == m->line_count)
     {
         m->line_count *= 2;
         m->lines = realloc(m->lines, m->line_count);
     }
 
-    strcpy(copy, line);
-    m->lines[m->lines_filled++] = copy;
+    m->lines[m->lines_filled++] = dupstr(line);
 }
 
 char *m_get_line(macro *m, int i)
