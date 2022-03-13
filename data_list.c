@@ -50,6 +50,11 @@ int dl_get_dc(data_list *dl) {
     return dl->dc;
 }
 
+void dl_destroy(data_list *dl) {
+    free(dl->bytes);
+    free(dl);
+}
+
 int main(int argc, char const *argv[])
 {
     data_list *dl = dl_create();
@@ -60,6 +65,8 @@ int main(int argc, char const *argv[])
     dl_append_num(dl,(int16_t) -9);
     dl_append_num(dl,(int16_t) -100);
     dl_append_num(dl,(int16_t) 31);
+
+    dl_destroy(dl);
     return 0;
 }
 

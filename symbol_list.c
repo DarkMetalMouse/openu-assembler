@@ -64,6 +64,7 @@ void sl_append(symbol_list *sl, symbol *s) {
                 }
             }
 
+            s_destroy(s);
             return; /* modified symbol */
         }
         ptr = ptr->next;
@@ -95,6 +96,23 @@ symbol_list *sl_create() {
     return sl;
 }
 
+void s_destroy(symbol *s) {
+    free(s->name);
+    free(s);
+}
+
+void sl_destroy(symbol_list *sl) {
+    symbol *ptr = sl->head;
+    symbol *tmp;
+    while (ptr != NULL)
+    {
+        tmp = ptr;
+        ptr = ptr->next;
+        s_destroy(tmp);
+    }
+    free(sl);
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -123,6 +141,6 @@ int main(int argc, char const *argv[])
     s = s_create("val1", 0, UNKNOWN, EXTERNAL);
     sl_append(list,s);
     
-
+    sl_destroy(list);
     return 0;
 }

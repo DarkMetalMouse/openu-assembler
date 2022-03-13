@@ -9,6 +9,7 @@ void dl_append_num(data_list *dl, int16_t num);
 void dl_append_string(data_list *dl, char *s);
 uint16_t dl_get_val(data_list *dl, int i);
 int dl_get_dc(data_list *dl);
+void dl_destroy(data_list *dl);
 
 
 #endif
