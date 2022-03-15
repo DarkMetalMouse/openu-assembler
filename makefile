@@ -1,9 +1,9 @@
-OBJS	= instruction.o
-SOURCE	= instruction.c
-HEADER	= 
+OBJS	= instruction.o operand.o
+SOURCE	= instruction.c operand.c
+HEADER	= instruction.h operand.h
 OUT	= instruction
 CC	 = gcc
-FLAGS	 = -g -c -Wall -ansi -pedantic
+FLAGS	 = -g -c -Wall
 LFLAGS	 = 
 
 all: $(OBJS)
@@ -11,6 +11,9 @@ all: $(OBJS)
 
 instruction.o: instruction.c
 	$(CC) $(FLAGS) instruction.c 
+
+operand.o: operand.c
+	$(CC) $(FLAGS) operand.c 
 
 
 clean:

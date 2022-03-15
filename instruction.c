@@ -2,29 +2,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include "instruction.h"
+#include "operand.h"
 
-typedef enum opcode
-{
-    mov,
-    cmp,
-    add,
-    sub,
-
-    lea,
-    clr,
-    not,
-    inc,
-
-    dec,
-    jmp,
-    bne,
-    jsr,
-
-    red,
-    prn,
-    rts,
-    stop
-} opcode;
 
 const int OPCODE_VALUE[] =
     {
@@ -70,20 +50,7 @@ const int OPCODE_FUNCT[] =
         0,
         0};
 
-typedef enum ARE
-{
-    absolute = 1 << 2,
-    relocatable = 1 << 1,
-    external = 1 << 0
-} ARE;
 
-typedef enum operand_type
-{
-    immidiate,
-    direct,
-    index,
-    reg
-} operand_type;
 
 const int OPERAND_SIZE[] = {1, 2, 2, 0};
 
@@ -117,28 +84,7 @@ typedef struct instruction
     int filled;
 } instruction;
 
-typedef struct operand
-{
-    union data_type
-    {
-        uint16_t imm;
 
-        struct address
-        {
-            uint16_t value;
-            unsigned int is_external : 1;
-        } address;
-
-        struct index
-        {
-            struct address address;
-            unsigned int reg : 4;
-        } index;
-
-        unsigned int reg : 4;
-    } data_type;
-    operand_type type;
-} operand;
 
 int get_operand_size(operand operand)
 {
@@ -289,79 +235,37 @@ int main(int argc, char const *argv[])
 {
     instruction *i;
 
-    i = i_create(add, 2, (operand[]){
-                             {.data_type.reg = 3, .type = reg},   //
-                             {.data_type.address.is_external = 0, //
-                              .data_type.address.value = 146,     //
-                              .type = direct}                     //
-                         });
+    i = i_create(add, 2, (operand[]){ o_create_reg(3), o_create_direct(146,0) });
     i_print(i);
 
-    i = i_create(prn, 1, (operand[]){{.data_type.imm = 48, .type = immidiate}});
+    i = i_create(prn, 1, (operand[]){ o_create_immidiate(48) });
     i_print(i);
 
-    i = i_create(lea, 2, (operand[]){
-                             {.data_type.address.is_external = 0, //
-                              .data_type.address.value = 141,     //
-                              .type = direct},                    //
-                             {.data_type.reg = 6, .type = reg}    //
-                         });
+    i = i_create(lea, 2, (operand[]){ o_create_direct(141,0),o_create_reg(6) });
     i_print(i);
 
-    i = i_create(inc, 1, (operand[]){{.data_type.reg = 6, .type = reg}});
+    i = i_create(inc, 1, (operand[]){ o_create_reg(6) });
     i_print(i);
 
-    i = i_create(mov, 2, (operand[]){
-                             {.data_type.reg = 3, .type = reg},   //
-                             {.data_type.address.is_external = 1, //
-                              .data_type.address.value = 0,       //
-                              .type = direct}                     //
-                         });
+    i = i_create(mov, 2, (operand[]){ o_create_reg(3), o_create_direct(0,1) });
     i_print(i);
 
-    i = i_create(sub, 2, (operand[]){
-                             {.data_type.reg = 1, .type = reg}, //
-                             {.data_type.reg = 4, .type = reg}  //
-                         });
+    i = i_create(sub, 2, (operand[]){ o_create_reg(1), o_create_reg(4) });
     i_print(i);
 
-    i = i_create(bne, 1, (operand[]){
-                             {.data_type.address.is_external = 0, //
-                              .data_type.address.value = 140,     //
-                              .type = direct}                     //
-                         });
+    i = i_create(bne, 1, (operand[]){ o_create_direct(140,0) });
     i_print(i);
 
-    i = i_create(cmp, 2, (operand[]){
-                             {.data_type.address.is_external = 1,     //
-                              .data_type.address.value = 0,           //
-                              .type = direct},                        //
-                             {.data_type.imm = -6, .type = immidiate} //
-                         });
+    i = i_create(cmp, 2, (operand[]){ o_create_direct(0,1), o_create_immidiate(-6) });
     i_print(i);
 
-    i = i_create(bne, 1, (operand[]){
-                             {.data_type.index.address.is_external = 0, //
-                              .data_type.index.address.value = 140,     //
-                              .data_type.index.reg = 15,                //
-                              .type = index},                           //
-                         });
+    i = i_create(bne, 1, (operand[]){ o_create_index(149,15,0) });
     i_print(i);
 
-    i = i_create(dec, 1, (operand[]){
-                             {.data_type.address.is_external = 0, //
-                              .data_type.address.value = 149,     //
-                              .type = direct}                     //
-                         });
+    i = i_create(dec, 1, (operand[]){ o_create_direct(149,0) });
     i_print(i);
 
-    i = i_create(sub, 2, (operand[]){
-                             {.data_type.index.address.is_external = 0, //
-                              .data_type.index.address.value = 104,     //
-                              .data_type.index.reg = 10,                //
-                              .type = index},                           //
-                             {.data_type.reg = 14, .type = reg}         //
-                         });
+    i = i_create(sub, 2, (operand[]){ o_create_index(104,10,0), o_create_reg(14) });
     i_print(i);
 
     i = i_create(stop, 0, (operand[]){});
