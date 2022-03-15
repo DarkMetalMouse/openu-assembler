@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+typedef struct instruction instruction;
+
 typedef enum opcode
 {
     mov,
@@ -64,5 +66,11 @@ typedef struct operand
     operand_type type;
 } operand;
 
+
+instruction *i_create(opcode opcode, int operand_count, operand operands[]);
+void i_set_next(instruction *inst, instruction *next);
+instruction *i_get_next(instruction *inst);
+int i_get_size(instruction *inst) {
+uint32_t i_get_word(instruction *inst, int i) {
 
 #endif

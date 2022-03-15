@@ -82,6 +82,7 @@ typedef struct instruction
     word *words;
     int size;
     int filled;
+    instruction *next
 } instruction;
 
 
@@ -118,7 +119,24 @@ instruction *i_allocate(int size)
     inst->size = size;
     inst->filled = 0;
     inst->words = malloc(sizeof(word) * size);
+    inst->next = NULL;
     return inst;
+}
+
+void i_set_next(instruction *inst, instruction *next) {
+    inst->next = next;
+}
+
+instruction *i_get_next(instruction *inst) {
+    return inst->next;
+}
+
+int i_get_size(instruction *inst) {
+    return inst->size;
+}
+
+uint32_t i_get_word(instruction *inst, int i) {
+    return inst->words[i].raw;
 }
 
 void i_fill(instruction *inst, uint16_t data, ARE attribute)
