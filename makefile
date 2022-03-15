@@ -1,16 +1,16 @@
-OBJS	= instruction_list.o
-SOURCE	= instruction_list.c
+OBJS	= instruction.o
+SOURCE	= instruction.c
 HEADER	= 
-OUT	= instruction_list
+OUT	= instruction
 CC	 = gcc
-FLAGS	 = -g -c -Wall
+FLAGS	 = -g -c -Wall -ansi -pedantic
 LFLAGS	 = 
 
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-instruction_list.o: instruction_list.c
-	$(CC) $(FLAGS) instruction_list.c 
+instruction.o: instruction.c
+	$(CC) $(FLAGS) instruction.c 
 
 
 clean:
