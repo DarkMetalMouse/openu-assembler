@@ -3,42 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "macro_list.h"
+#include "util.h"
 
-#define MAX_LINE 80
 
-int skip_spaces(char *s)
-{
-    int i = 0;
-    for (i = 0; i < MAX_LINE && !isspace(s[i]) && i != '\0'; i++)
-        ;
-    return i;
-}
 
-int is_last_word(char *s)
-{
-    int i = 0;
-    while (isalnum(s[i]))
-    {
-        i++;
-    }
-    while (s[i] != '\0')
-    {
-        if (!isspace(s[i]))
-            return 0;
-        i++;
-    }
-    return 1;
-}
-
-void trim_word(char *s)
-{
-    int i = 0;
-    while (isalnum(s[i]))
-    {
-        i++;
-    }
-    s[i] = '\0';
-}
 
 char *get_file_name(char *name)
 {
@@ -75,7 +43,7 @@ FILE *parsefile(FILE *fp, char name[])
                 fwrite(line, 1, strlen(line), out);
             }
         }
-        else if (strncmp(&line[i], "macro", 5) == 0 && len > 6 && isspace(line[i + 5]))
+        else if (starts_with_word(&line[i],"macro"))
         {
             i += 6;
             trim_word(&line[i]);
