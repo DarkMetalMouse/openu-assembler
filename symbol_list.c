@@ -30,6 +30,14 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
     return s;
 }
 
+void *s_set_name(symbol *s, char *name) {
+    s->name = dupstr(name);
+}
+
+void s_set_type(symbol *s, symbol_type type) {
+    s->type = type;
+}
+
 void sl_append(symbol_list *sl, symbol *s) {
     symbol *ptr;
     if(sl->head == NULL) {
