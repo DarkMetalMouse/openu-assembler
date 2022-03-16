@@ -9,7 +9,7 @@
 typedef struct symbol
 {
     char *name;
-    address address;
+    uint16_t address;
     symbol_type type;
     symbol_attribute attribute;
     struct symbol *next;
@@ -65,11 +65,15 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
         return NULL;
         s_destroy(s);
     }
-    s->address.value = address;
+    s->address = address;
     s->type = type;
     s->attribute = attribute;
     s->next = NULL;
     return s;
+}
+
+int s_get_name_length(symbol *s) {
+    return strlen(s->name);
 }
 
 void s_set_type(symbol *s, symbol_type type)
@@ -80,6 +84,9 @@ void s_set_type(symbol *s, symbol_type type)
 void sl_append(symbol_list *sl, symbol *s)
 {
     symbol *ptr;
+
+    if (s == NULL)
+        return;
     if (sl->head == NULL)
     {
         sl->head = s;
@@ -92,13 +99,13 @@ void sl_append(symbol_list *sl, symbol *s)
     {
         if (strcmp(ptr->name, s->name) == 0)
         {
-            if (s->address.value != 0)
+            if (s->address != 0)
             {
                 if (ptr->attribute == EXTERNAL)
                 {
                     /* ERROR EXTENTAL CANNOT BE DEFINED INTARNALLY */
                 }
-                if (ptr->address.value == 0)
+                if (ptr->address == 0)
                 {
                     ptr->address = s->address;
                     ptr->type = s->type; /* if we know the address we know the type */
