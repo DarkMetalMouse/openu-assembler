@@ -1,6 +1,8 @@
 #ifndef _INSTRUCTION_LIST_H
 #define _INSTRUCTION_LIST_H
 
+#include "instruction.h"
+
 typedef struct instruction_list instruction_list;
 
 instruction_list *il_create();
