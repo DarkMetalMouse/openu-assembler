@@ -1,10 +1,7 @@
 #include <stdlib.h>
 #include <ctype.h>
-#include "instruction.h"
-#include "operand.h"
-#include "instruction_list.h"
+#include <string.h>
 #include "symbol_list.h"
-#include "data_list.h"
 #include "util.h"
 
 int is_legal_symbol_name(char *name) {
@@ -24,7 +21,6 @@ int is_legal_symbol_name(char *name) {
     
 }
 
-
 symbol *parse_symbol(char *line, int address) {
     symbol *s = NULL;
     int i = 0;
@@ -43,10 +39,12 @@ symbol *parse_symbol(char *line, int address) {
             if(is_legal_symbol_name(line)) 
             {
             s_set_name(s,line);
+            return s;
+
             } else {
                 /* ERROR ILLEGAL SYMBOL NAME */
+                return NULL;
             }
-            return;
         } else {
             /* ERROR TOO MANY ARGUMENTS*/
         }
@@ -75,4 +73,10 @@ symbol *parse_symbol(char *line, int address) {
     }
 
     return s;
+}
+
+int main(int argc, char const *argv[])
+{
+    parse_symbol(".entry LIST", 0);
+    return 0;
 }

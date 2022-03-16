@@ -43,8 +43,8 @@ void trim_word(char *s)
     s[i] = '\0';
 }
 
-int starts_with_word(char*s, char* word) 
+int starts_with_word(char* s, char* word) 
 {
     int len = strlen(word);
-    return strncmp(s, word, len) == 0 && strlen(s) > 6 && isspace(s + len);
+    return strncmp(s, word, len) == 0 && strlen(s) > 6 && isspace(*(s + len));
 }

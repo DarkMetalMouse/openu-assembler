@@ -30,7 +30,7 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
     return s;
 }
 
-void *s_set_name(symbol *s, char *name) {
+void s_set_name(symbol *s, char *name) {
     s->name = dupstr(name);
 }
 
@@ -122,7 +122,7 @@ void sl_destroy(symbol_list *sl) {
 }
 
 
-int main(int argc, char const *argv[])
+/*int main(int argc, char const *argv[])
 {
     symbol_list *list = sl_create();
     symbol *s = s_create("LIST", 0, UNKNOWN, ENTRY);
@@ -152,3 +152,4 @@ int main(int argc, char const *argv[])
     sl_destroy(list);
     return 0;
 }
+*/

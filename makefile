@@ -1,7 +1,7 @@
-OBJS	= instruction.o operand.o
-SOURCE	= instruction.c operand.c
-HEADER	= instruction.h operand.h
-OUT	= instruction
+OBJS	= parser.o util.o symbol_list.o
+SOURCE	= parser.c util.c symbol_list.c
+HEADER	= util.h symbol_list.h
+OUT	= parser
 CC	 = gcc
 FLAGS	 = -g -c -Wall
 LFLAGS	 = 
@@ -9,11 +9,14 @@ LFLAGS	 =
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-instruction.o: instruction.c
-	$(CC) $(FLAGS) instruction.c 
+parser.o: parser.c
+	$(CC) $(FLAGS) parser.c 
 
-operand.o: operand.c
-	$(CC) $(FLAGS) operand.c 
+util.o: util.c
+	$(CC) $(FLAGS) util.c 
+
+symbol_list.o: symbol_list.c
+	$(CC) $(FLAGS) symbol_list.c 
 
 
 clean:
