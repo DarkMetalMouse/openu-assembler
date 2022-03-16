@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "util.h"
 
-char* dupstr(char *s) 
+char *dupstr(char *s)
 {
     char *copy = malloc(sizeof(char) * MAX_LINE);
     strcpy(copy, s);
@@ -12,7 +13,7 @@ char* dupstr(char *s)
 int skip_spaces(char *s)
 {
     int i = 0;
-    for (i = 0; i < MAX_LINE && !isspace(s[i]) && i != '\0'; i++)
+    for (i = 0; i < MAX_LINE && isspace(s[i]) && s[i] != '\0'; i++)
         ;
     return i;
 }
@@ -40,10 +41,13 @@ void trim_word(char *s)
     {
         i++;
     }
-    s[i] = '\0';
+    if (!(s[i] == '\0')) /* prevent segfault if there aren't any spaces*/
+    {
+        s[i] = '\0';
+    }
 }
 
-int starts_with_word(char* s, char* word) 
+int starts_with_word(char *s, char *word)
 {
     int len = strlen(word);
     return strncmp(s, word, len) == 0 && strlen(s) > 6 && isspace(*(s + len));

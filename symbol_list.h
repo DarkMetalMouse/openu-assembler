@@ -29,14 +29,14 @@ typedef union address
 
 typedef struct symbol symbol;
 symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribute attribute);
-void s_set_name(symbol *s, char *name);
+int s_set_name(symbol *s, char *name);
 void s_set_type(symbol *s, symbol_type type);
 void s_destroy(symbol *s);
 
 typedef struct symbol_list symbol_list;
 symbol_list *sl_create();
 void sl_append(symbol_list *sl, symbol *s);
-symbol *sl_get(symbol_list *sl, char * name);
+symbol *sl_get(symbol_list *sl, char *name);
 void sl_destroy(symbol_list *sl);
 
 #endif

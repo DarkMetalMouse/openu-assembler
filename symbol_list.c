@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "util.h"
 #include "symbol_list.h"
+
+#define MAX_SYMBOL_LENGTH 31
 
 typedef struct symbol
 {
@@ -19,10 +22,49 @@ typedef struct symbol_list
     symbol *tail;
 } symbol_list;
 
+int is_legal_symbol_name(char *name)
+{
+    int len = strlen(name);
+    int i;
+    if (len == 0)
+        return 0;
+    if (!isalpha(name[0]))
+        return 0;
+    for (i = 1; i < len; i++)
+    {
+        if (!isalnum(name[i]))
+            return 0;
+    }
+    if (i > MAX_SYMBOL_LENGTH)
+    {
+        return 0;
+    }
+    return 1;
+}
 
-symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribute attribute) {
-    symbol *s = malloc(sizeof(symbol));
+int s_set_name(symbol *s, char *name)
+{
+    if (name == NULL)
+    {
+        return 1;
+    }
+
+    if (!is_legal_symbol_name(name))
+    {
+        s_destroy(s);
+        return 0;
+    }
     s->name = dupstr(name);
+    return 1;
+}
+symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribute attribute)
+{
+    symbol *s = malloc(sizeof(symbol));
+    if (!s_set_name(s, name))
+    {
+        return NULL;
+        s_destroy(s);
+    }
     s->address.value = address;
     s->type = type;
     s->attribute = attribute;
@@ -30,17 +72,16 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
     return s;
 }
 
-void s_set_name(symbol *s, char *name) {
-    s->name = dupstr(name);
-}
-
-void s_set_type(symbol *s, symbol_type type) {
+void s_set_type(symbol *s, symbol_type type)
+{
     s->type = type;
 }
 
-void sl_append(symbol_list *sl, symbol *s) {
+void sl_append(symbol_list *sl, symbol *s)
+{
     symbol *ptr;
-    if(sl->head == NULL) {
+    if (sl->head == NULL)
+    {
         sl->head = s;
         sl->tail = s;
         return;
@@ -49,25 +90,34 @@ void sl_append(symbol_list *sl, symbol *s) {
     ptr = sl->head;
     while (ptr != NULL)
     {
-        if(strcmp(ptr->name,s->name) == 0) {
+        if (strcmp(ptr->name, s->name) == 0)
+        {
             if (s->address.value != 0)
             {
-                if(ptr->attribute == EXTERNAL) {
+                if (ptr->attribute == EXTERNAL)
+                {
                     /* ERROR EXTENTAL CANNOT BE DEFINED INTARNALLY */
                 }
-                if (ptr->address.value == 0) {
+                if (ptr->address.value == 0)
+                {
                     ptr->address = s->address;
-                    ptr-> type = s->type; /* if we know the address we know the type */
-                } else {
+                    ptr->type = s->type; /* if we know the address we know the type */
+                }
+                else
+                {
                     /* ERROR DUPLICATE LABEL*/
                 }
-            } else {
+            }
+            else
+            {
                 /* if no address was supplied, it must be a ".entry SYMBOL" or ".extern SYMBOL" */
-                
+
                 if ((s->attribute | ptr->attribute) == 3) /* 01|10 == 11 */
                 {
-                     /* ERROR SYMBOL CANNOT BE BOTH EXTENTAL AND INTERNAL */
-                } else { /* 00|XX, XX|XX */
+                    /* ERROR SYMBOL CANNOT BE BOTH EXTENTAL AND INTERNAL */
+                }
+                else
+                { /* 00|XX, XX|XX */
                     ptr->attribute = s->attribute;
                 }
             }
@@ -80,10 +130,10 @@ void sl_append(symbol_list *sl, symbol *s) {
 
     sl->tail->next = s;
     sl->tail = s;
-
 }
 
-symbol *sl_get(symbol_list *sl, char * name) {
+symbol *sl_get(symbol_list *sl, char *name)
+{
     symbol *ptr = sl->head;
     while (ptr != NULL)
     {
@@ -97,19 +147,22 @@ symbol *sl_get(symbol_list *sl, char * name) {
     return NULL;
 }
 
-symbol_list *sl_create() {
-    symbol_list *sl= malloc(sizeof(symbol_list));
+symbol_list *sl_create()
+{
+    symbol_list *sl = malloc(sizeof(symbol_list));
     sl->head = NULL;
     sl->tail = NULL;
     return sl;
 }
 
-void s_destroy(symbol *s) {
+void s_destroy(symbol *s)
+{
     free(s->name);
     free(s);
 }
 
-void sl_destroy(symbol_list *sl) {
+void sl_destroy(symbol_list *sl)
+{
     symbol *ptr = sl->head;
     symbol *tmp;
     while (ptr != NULL)
@@ -120,7 +173,6 @@ void sl_destroy(symbol_list *sl) {
     }
     free(sl);
 }
-
 
 /*int main(int argc, char const *argv[])
 {
@@ -148,7 +200,7 @@ void sl_destroy(symbol_list *sl) {
     sl_append(list,s);
     s = s_create("val1", 0, UNKNOWN, EXTERNAL);
     sl_append(list,s);
-    
+
     sl_destroy(list);
     return 0;
 }

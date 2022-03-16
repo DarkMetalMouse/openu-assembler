@@ -1,75 +1,65 @@
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include "symbol_list.h"
 #include "util.h"
 
-int is_legal_symbol_name(char *name) {
-    int len = strlen(name);
-    int i;
-    if(len == 0) 
-        return 0;
-    if(!isalpha(name[0]))
-        return 0;
-    for ( i = 1; i < len; i++)
-    {
-        if(!isalnum(name[i]))
-            return 0;
-    }
-    return 1;
-
-    
-}
-
-symbol *parse_symbol(char *line, int address) {
+symbol *parse_symbol(char *line, int address)
+{
     symbol *s = NULL;
     int i = 0;
     line = &line[skip_spaces(line)];
-    if(starts_with_word(line,".entry")) {
-        s = s_create("", 0, UNKNOWN, ENTRY);
+    if (starts_with_word(line, ".entry"))
+    {
+        s = s_create(NULL, 0, UNKNOWN, ENTRY);
         line += 6; /* strlen(".entry") */
-    } else if (starts_with_word(line, ".extern")) {
-        s = s_create("", 0, UNKNOWN, EXTERNAL);
-        line+= 7; /* strlen(".extern") */
     }
-    if(s) {
+    else if (starts_with_word(line, ".extern"))
+    {
+        s = s_create(NULL, 0, UNKNOWN, EXTERNAL);
+        line += 7; /* strlen(".extern") */
+    }
+    if (s)
+    {
         line = &line[skip_spaces(line)];
-        if (is_last_word(line)) {
+        if (is_last_word(line))
+        {
             trim_word(line);
-            if(is_legal_symbol_name(line)) 
-            {
-            s_set_name(s,line);
-            return s;
 
-            } else {
-                /* ERROR ILLEGAL SYMBOL NAME */
-                return NULL;
-            }
-        } else {
+            if (s_set_name(s, line))
+                return s;
+            else
+                return NULL; /* ILLEGAL NAME*/
+        }
+        else
+        {
             /* ERROR TOO MANY ARGUMENTS*/
         }
-    } 
+    }
     while (line[i] != ':' && line[i] != '\0')
     {
         i++;
     }
-    if(line[i] == '\0') { /* not a symbol definition */
+    if (line[i] == '\0')
+    { /* not a symbol definition */
         return NULL;
     }
     line[i] = '\0'; /* "MAIN: mov r3,16" -> "MAIN" */
-    if(!is_legal_symbol_name(line)) {
-        /* ERROR ILLEGAL SYMBOL NAME */
+    s = s_create(line, address, UNKNOWN, NONE);
+    if (s == NULL)
+    {
         return NULL;
     }
-    s = s_create(line, address, UNKNOWN, NONE);
-    line++; /* "MAIN" -> " mov r3,16"*/
+
+    line += i + 1; /* "MAIN" -> " mov r3,16"*/
     line = &line[skip_spaces(line)];
 
-
-    if(starts_with_word(line,".data") || starts_with_word(line, ".string")) {
-        s_set_type(s,DATA); 
-    } else {
-        s_set_type(s,CODE); 
+    if (starts_with_word(line, ".data") || starts_with_word(line, ".string"))
+    {
+        s_set_type(s, DATA);
+    }
+    else
+    {
+        s_set_type(s, CODE);
     }
 
     return s;
@@ -77,6 +67,8 @@ symbol *parse_symbol(char *line, int address) {
 
 int main(int argc, char const *argv[])
 {
-    parse_symbol(".entry LIST", 0);
+    parse_symbol(dupstr("\t \t\t.entry\tLIST\t\t"), 0);
+    parse_symbol(dupstr("\t \t\t.extern  \tval1   "), 0);
+    parse_symbol(dupstr("LIST: .data 9,-6"), 0);
     return 0;
 }
