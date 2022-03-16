@@ -5,7 +5,6 @@
 #include "instruction.h"
 #include "operand.h"
 
-
 const int OPCODE_VALUE[] =
     {
         0,
@@ -50,8 +49,6 @@ const int OPCODE_FUNCT[] =
         0,
         0};
 
-
-
 const int OPERAND_SIZE[] = {1, 2, 2, 0};
 
 typedef union word
@@ -84,8 +81,6 @@ typedef struct instruction
     int filled;
     instruction *next
 } instruction;
-
-
 
 int get_operand_size(operand operand)
 {
@@ -123,19 +118,23 @@ instruction *i_allocate(int size)
     return inst;
 }
 
-void i_set_next(instruction *inst, instruction *next) {
+void i_set_next(instruction *inst, instruction *next)
+{
     inst->next = next;
 }
 
-instruction *i_get_next(instruction *inst) {
+instruction *i_get_next(instruction *inst)
+{
     return inst->next;
 }
 
-int i_get_size(instruction *inst) {
+int i_get_size(instruction *inst)
+{
     return inst->size;
 }
 
-uint32_t i_get_word(instruction *inst, int i) {
+uint32_t i_get_word(instruction *inst, int i)
+{
     return inst->words[i].raw;
 }
 
@@ -169,17 +168,17 @@ void i_write_operand(instruction *inst, operand operand, int is_dest)
         i_fill(inst, operand.data_type.address.value & 0xF0, attribute);
         i_fill(inst, operand.data_type.address.value & 0x0F, attribute);
         break;
-    case index:
-        attribute = operand.data_type.index.address.is_external ? external : relocatable;
-        i_fill(inst, operand.data_type.index.address.value & 0xF0, attribute);
-        i_fill(inst, operand.data_type.index.address.value & 0x0F, attribute);
+    case indexed:
+        attribute = operand.data_type.indexed.address.is_external ? external : relocatable;
+        i_fill(inst, operand.data_type.indexed.address.value & 0xF0, attribute);
+        i_fill(inst, operand.data_type.indexed.address.value & 0x0F, attribute);
         if (is_dest)
         {
-            inst->words[1].format.data.funct_word.dst_reg = operand.data_type.index.reg;
+            inst->words[1].format.data.funct_word.dst_reg = operand.data_type.indexed.reg;
         }
         else
         {
-            inst->words[1].format.data.funct_word.src_reg = operand.data_type.index.reg;
+            inst->words[1].format.data.funct_word.src_reg = operand.data_type.indexed.reg;
         }
         break;
     case reg:
@@ -253,37 +252,37 @@ int main(int argc, char const *argv[])
 {
     instruction *i;
 
-    i = i_create(add, 2, (operand[]){ o_create_reg(3), o_create_direct(146,0) });
+    i = i_create(add, 2, (operand[]){o_create_reg(3), o_create_direct(146, 0)});
     i_print(i);
 
-    i = i_create(prn, 1, (operand[]){ o_create_immidiate(48) });
+    i = i_create(prn, 1, (operand[]){o_create_immidiate(48)});
     i_print(i);
 
-    i = i_create(lea, 2, (operand[]){ o_create_direct(141,0),o_create_reg(6) });
+    i = i_create(lea, 2, (operand[]){o_create_direct(141, 0), o_create_reg(6)});
     i_print(i);
 
-    i = i_create(inc, 1, (operand[]){ o_create_reg(6) });
+    i = i_create(inc, 1, (operand[]){o_create_reg(6)});
     i_print(i);
 
-    i = i_create(mov, 2, (operand[]){ o_create_reg(3), o_create_direct(0,1) });
+    i = i_create(mov, 2, (operand[]){o_create_reg(3), o_create_direct(0, 1)});
     i_print(i);
 
-    i = i_create(sub, 2, (operand[]){ o_create_reg(1), o_create_reg(4) });
+    i = i_create(sub, 2, (operand[]){o_create_reg(1), o_create_reg(4)});
     i_print(i);
 
-    i = i_create(bne, 1, (operand[]){ o_create_direct(140,0) });
+    i = i_create(bne, 1, (operand[]){o_create_direct(140, 0)});
     i_print(i);
 
-    i = i_create(cmp, 2, (operand[]){ o_create_direct(0,1), o_create_immidiate(-6) });
+    i = i_create(cmp, 2, (operand[]){o_create_direct(0, 1), o_create_immidiate(-6)});
     i_print(i);
 
-    i = i_create(bne, 1, (operand[]){ o_create_index(149,15,0) });
+    i = i_create(bne, 1, (operand[]){o_create_index(149, 15, 0)});
     i_print(i);
 
-    i = i_create(dec, 1, (operand[]){ o_create_direct(149,0) });
+    i = i_create(dec, 1, (operand[]){o_create_direct(149, 0)});
     i_print(i);
 
-    i = i_create(sub, 2, (operand[]){ o_create_index(104,10,0), o_create_reg(14) });
+    i = i_create(sub, 2, (operand[]){o_create_index(104, 10, 0), o_create_reg(14)});
     i_print(i);
 
     i = i_create(stop, 0, (operand[]){});

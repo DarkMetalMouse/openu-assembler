@@ -39,7 +39,7 @@ typedef enum operand_type
 {
     immidiate,
     direct,
-    index,
+    indexed,
     reg
 } operand_type;
 
@@ -55,22 +55,21 @@ typedef struct operand
             unsigned int is_external : 1;
         } address;
 
-        struct index
+        struct indexed
         {
             struct address address;
             unsigned int reg : 4;
-        } index;
+        } indexed;
 
         unsigned int reg : 4;
     } data_type;
     operand_type type;
 } operand;
 
-
 instruction *i_create(opcode opcode, int operand_count, operand operands[]);
 void i_set_next(instruction *inst, instruction *next);
 instruction *i_get_next(instruction *inst);
-int i_get_size(instruction *inst) {
-uint32_t i_get_word(instruction *inst, int i) {
+int i_get_size(instruction *inst);
+uint32_t i_get_word(instruction *inst, int i);
 
 #endif
