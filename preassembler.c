@@ -5,24 +5,13 @@
 #include "macro_list.h"
 #include "util.h"
 
-
-
-
-char *get_file_name(char *name)
-{
-    char *new_name = malloc(strlen(name) + 4); /*  sizeof (.am\0) == 4 */
-    strcpy(new_name, name);
-    strcat(new_name, ".am");
-    return new_name;
-}
-
 FILE *parsefile(FILE *fp, char name[])
 {
     macro_list *macros = ml_create();
     char line[MAX_LINE + 1];
     int in_macro = 0;
     macro *m;
-    char *fname = get_file_name(name);
+    char *fname = strconcat(name, ".am");
     FILE *out = fopen(fname, "w");
     while (NULL != fgets(line, MAX_LINE, fp))
     {
@@ -43,7 +32,7 @@ FILE *parsefile(FILE *fp, char name[])
                 fwrite(line, 1, strlen(line), out);
             }
         }
-        else if (starts_with_word(&line[i],"macro"))
+        else if (starts_with_word(&line[i], "macro"))
         {
             i += 6;
             trim_word(&line[i]);

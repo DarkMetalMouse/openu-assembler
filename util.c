@@ -84,3 +84,11 @@ char *get_next_num(char *line)
 
     return word;
 }
+
+char *strconcat(char *s1, char *s2)
+{
+    char *new_s = malloc(strlen(s1) + strlen(s2) + 1);
+    strcpy(new_s, s1);
+    strcat(new_s, s2);
+    return new_s;
+}

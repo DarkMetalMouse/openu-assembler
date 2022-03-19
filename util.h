@@ -11,5 +11,6 @@ void trim_word(char *s);
 int starts_with_word(char *s, char *word);
 char *get_next_word(char *line);
 char *get_next_num(char *line);
+char *strconcat(char *s1, char *s2);
 
 #endif
