@@ -152,7 +152,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         }
 
         line += skip_spaces(line);
-        part = get_next_word(line); /* TODO: parse stop correctly */
+        part = get_next_word(line);
         line += strlen(part);
         opcode = get_opcode(part);
         free(part);
@@ -228,20 +228,20 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, externa
 int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, symbol_list *sl, external_list *el)
 {
     int length = il1_get_length(il1), i, ic = 100;
+    instruction_pass1 *inst;
     *inst_list = malloc(i2_size() * length);
-    instruction_pass1 *inst = il1_get_head(il1);
+    inst = il1_get_head(il1);
 
     for (i = 0; i < length; i++)
     {
         (*inst_list)[i] = fill_symbol(inst, sl, el, &ic);
-        i_print((*inst_list)[i]);
 
         inst = i1_get_next(inst);
     }
     return length;
 }
 
-int main(int argc, char const *argv[])
+/* int main(int argc, char const *argv[])
 {
     FILE *fp = fopen("ps.as", "r");
     char line[MAX_LINE + 1];
@@ -263,8 +263,8 @@ int main(int argc, char const *argv[])
 
     write_entries("ps", sl);
     write_externs("ps", el);
-    write_objects("ps", inst_list, length, dl);
+    write_objects("ps", inst_list, length, dl, il1_get_ic(il1));
 
     fclose(fp);
     return 0;
-}
+} */

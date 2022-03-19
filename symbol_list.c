@@ -6,22 +6,6 @@
 
 #define MAX_SYMBOL_LENGTH 31
 
-typedef struct symbol
-{
-    char *name;
-    uint16_t address;
-    symbol_type type;
-    symbol_attribute attribute;
-    struct symbol *next;
-
-} symbol;
-
-typedef struct symbol_list
-{
-    symbol *head;
-    symbol *tail;
-} symbol_list;
-
 int is_legal_symbol_name(char *name)
 {
     int len = strlen(name);

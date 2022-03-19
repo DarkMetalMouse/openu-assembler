@@ -5,7 +5,6 @@
 #include "operand.h"
 #include <ctype.h>
 
-/* we need to use all the values outside of this file so there is no point is abstraction */
 typedef struct instruction_pass1
 {
     opcode opcode;
@@ -18,7 +17,13 @@ typedef struct instruction_pass1
 instruction_pass1 *i1_create(opcode opcode, operand operands[], int operand_count);
 instruction_pass1 *i1_get_next(instruction_pass1 *i1);
 
-typedef struct instruction_list_pass1 instruction_list_pass1;
+typedef struct instruction_list_pass1
+{
+    instruction_pass1 *head;
+    instruction_pass1 *tail;
+    uint16_t ic;
+} instruction_list_pass1;
+
 instruction_list_pass1 *il1_create();
 uint16_t il1_get_ic(instruction_list_pass1 *il1);
 void il1_append(instruction_list_pass1 *il1, instruction_pass1 *i1);

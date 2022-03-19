@@ -45,8 +45,6 @@ typedef struct operand
 } operand;
 
 operand o_create_immidiate(int16_t value);
-operand o_create_index_2(uint16_t address, unsigned int reg, int is_external);
-operand o_create_direct_2(uint16_t address, int is_external);
 operand o_create_reg(unsigned int reg);
 int get_operand_size(operand operand);
 operand parse_operand(char *s);

@@ -1,16 +1,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "data_list.h"
 
 #define INITIAL_DATA_SIZE 64
-
-typedef struct data_list
-{
-    int dc;
-    int data_size;
-    uint16_t *bytes;
-} data_list;
-
 
 data_list *dl_create() {
     data_list *dl = malloc(sizeof(data_list));

@@ -6,23 +6,6 @@
 
 #define INITIAL_LINE_COUNT 20
 
-
-typedef struct macro
-{
-    char *name;
-    char **lines;
-    int line_count;
-    int lines_filled;
-    macro *next;
-} macro;
-
-typedef struct macro_list
-{
-    macro *head;
-    macro *tail;
-
-} macro_list;
-
 macro *m_create(char name[])
 {
     macro *m = malloc(sizeof(macro));

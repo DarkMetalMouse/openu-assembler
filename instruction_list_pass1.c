@@ -5,13 +5,6 @@
 
 #define CODE_OFFSET 100
 
-typedef struct instruction_list_pass1
-{
-    instruction_pass1 *head;
-    instruction_pass1 *tail;
-    uint16_t ic;
-} instruction_list_pass1;
-
 instruction_list_pass1 *il1_create()
 {
     instruction_list_pass1 *il1 = malloc(sizeof(instruction_list_pass1));

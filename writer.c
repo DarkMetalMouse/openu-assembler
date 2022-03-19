@@ -7,19 +7,6 @@
 #include "util.h"
 #include "writer.h"
 
-typedef struct external_value
-{
-    char *name;
-    uint16_t address;
-    struct external_value *next;
-} external_value;
-
-typedef struct external_list
-{
-    external_value *head;
-    external_value *tail;
-} external_list;
-
 external_value *e_create(char *name, uint16_t address)
 {
     external_value *e = malloc(sizeof(external_value));
@@ -91,7 +78,7 @@ void obj_write_line(FILE *fp, uint32_t value, int line_num)
     char line[81];
 
     sprintf(line,
-            "%04d\tA%x-B%x-C%x-D%x-E%x\n",
+            "%04d A%x-B%x-C%x-D%x-E%x\n",
             line_num,
             (value & 0xF0000) >> 16,
             (value & 0x0F000) >> 12,
@@ -101,13 +88,15 @@ void obj_write_line(FILE *fp, uint32_t value, int line_num)
     fwrite(line, sizeof(char), strlen(line), fp);
 }
 
-void write_objects(char *fname, instruction_pass2 **inst_list, int inst_count, data_list *dl)
+void write_objects(char *fname, instruction_pass2 **inst_list, int inst_count, data_list *dl, int icf)
 {
     FILE *fp;
     int i, j, line_num = 100;
+    char line[81];
     fname = strconcat(fname, ".ob");
     fp = fopen(fname, "w");
-
+    sprintf(line, "%d %d\n", icf - 100, dl_get_dc(dl));
+    fwrite(line, sizeof(char), strlen(line), fp);
     for (i = 0; i < inst_count; i++)
     {
         for (j = 0; j < i_get_size(inst_list[i]); j++)

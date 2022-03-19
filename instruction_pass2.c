@@ -8,36 +8,6 @@
 #include "operand.h"
 #include "opcode.h"
 
-typedef union word
-{
-    struct format
-    {
-        union data
-        {
-            struct __attribute__((__packed__)) funct_word
-            {
-                unsigned int dst_type : 2;
-                unsigned int dst_reg : 4;
-                unsigned int src_type : 2;
-                unsigned int src_reg : 4;
-                unsigned int funct : 4;
-            } funct_word;
-            uint16_t raw : 16;
-
-        } data;
-        unsigned int ARE : 3;
-        unsigned int _1 : 1;
-    } format;
-    unsigned int raw : 20;
-} word;
-
-typedef struct instruction_pass2
-{
-    word *words;
-    int size;
-    int filled;
-} instruction_pass2;
-
 int i2_size()
 {
     return sizeof(instruction_pass2);

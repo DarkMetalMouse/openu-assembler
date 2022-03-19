@@ -13,40 +13,35 @@ int get_operand_size(operand operand)
 
 operand o_create_immidiate(int16_t value)
 {
-    return (operand){.data_type.imm = value, .type = immidiate};
-}
-
-operand o_create_index_2(uint16_t address, unsigned int r, int is_external)
-{
-    return (operand){.data_type.indexed.address.pass2.is_external = is_external, //
-                     .data_type.indexed.address.pass2.value = address,           //
-                     .data_type.indexed.reg = r,                                 //
-                     .type = indexed};
-}
-
-operand o_create_direct_2(uint16_t address, int is_external)
-{
-    return (operand){.data_type.address.pass2.is_external = is_external, //
-                     .data_type.address.pass2.value = address,           //
-                     .type = direct};
+    operand o;
+    o.data_type.imm = value;
+    o.type = immidiate;
+    return o;
 }
 
 operand o_create_index_1(char *symbol, unsigned int r)
 {
-    return (operand){.data_type.indexed.address.pass1 = dupstr(symbol), //
-                     .data_type.indexed.reg = r,                        //
-                     .type = indexed};
+    operand o;
+    o.data_type.indexed.address.pass1 = dupstr(symbol);
+    o.data_type.indexed.reg = r;
+    o.type = indexed;
+    return o;
 }
 
 operand o_create_direct_1(char *symbol)
 {
-    return (operand){.data_type.address.pass1 = dupstr(symbol), //
-                     .type = direct};
+    operand o;
+    o.data_type.address.pass1 = dupstr(symbol);
+    o.type = direct;
+    return o;
 }
 
 operand o_create_reg(unsigned int r)
 {
-    return (operand){.data_type.reg = r, .type = reg};
+    operand o;
+    o.data_type.reg = r;
+    o.type = reg;
+    return o;
 }
 
 int get_reg(char *s)
@@ -72,6 +67,7 @@ int get_reg(char *s)
 
 operand parse_operand(char *s)
 {
+    operand o;
     int reg = -1;
     s += skip_spaces(s);
     trim_word(s);
@@ -116,9 +112,10 @@ operand parse_operand(char *s)
 
             if (s[strlen(s) - 1] == ']') /* ABC[...] */
             {
+                char *r;
                 s[strlen(s) - 1] = '\0';
                 s[i] = '\0';
-                char *r = s + i + 1;
+                r = s + i + 1;
                 r += skip_spaces(r);
                 if (is_last_word(r))
                 {
@@ -126,6 +123,10 @@ operand parse_operand(char *s)
                     if (-1 != (reg = get_reg(r)))
                     {
                         return o_create_index_1(s, reg);
+                    }
+                    else
+                    {
+                        /* ERROR UNKNOWN REGISTER */
                     }
                 }
                 else
@@ -135,9 +136,10 @@ operand parse_operand(char *s)
             }
             else
             {
-                /* ILLEGAL ARGUMENT ERROR */
+                /* ERROR ILLEGAL ARGUMENT */
             }
         }
     }
-    return (operand){.data_type = -1, .data_type.imm = 0};
+    o.type = -1;
+    return o;
 }

@@ -5,7 +5,7 @@
 #include "macro_list.h"
 #include "util.h"
 
-FILE *parsefile(FILE *fp, char name[])
+void preassembler_parse_file(FILE *fp, char name[])
 {
     macro_list *macros = ml_create();
     char line[MAX_LINE + 1];
@@ -16,9 +16,7 @@ FILE *parsefile(FILE *fp, char name[])
     while (NULL != fgets(line, MAX_LINE, fp))
     {
         int i = 0;
-        int len;
         i = skip_spaces(line);
-        len = strlen(&line[i]);
         if (in_macro)
         {
             if (strncmp(&line[i], "endm", 4) == 0 && is_last_word(&line[i]))
@@ -68,7 +66,7 @@ FILE *parsefile(FILE *fp, char name[])
     }
     ml_destroy(macros);
     free(fname);
-    return out;
+    fclose(out);
 }
 
 /*int main(int argc, char const *argv[])
