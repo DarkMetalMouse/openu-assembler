@@ -9,6 +9,7 @@
 #include "opcode.h"
 #include "instruction_pass2.h"
 #include "writer.h"
+#include "error_handler.h"
 
 symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
 {
@@ -50,7 +51,7 @@ symbol *get_symbol_instantiation(char *line)
     return s;
 }
 
-void add_int(char *number, data_list *dl)
+void add_int(char *number, data_list *dl, error_handler *eh)
 {
     long num;
     char *extra;
@@ -59,11 +60,13 @@ void add_int(char *number, data_list *dl)
     num = strtol(number, &extra, 10);
     if (extra[0] != '\0')
     {
-        /* ERROR NOT A NUMBER */
+        error(eh, NOT_A_NUMBER);
+        return;
     }
     else if (num > INT16_MAX || num < INT16_MIN)
     {
-        /* ERROR NUM MUST BE A 16 BIT INTEGER */
+        error(eh, NUMBER_OUT_OF_RANGE);
+        return;
     }
     else
     {
@@ -71,7 +74,7 @@ void add_int(char *number, data_list *dl)
     }
 }
 
-void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_list *sl)
+void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_list *sl, error_handler *eh)
 {
     int len;
     symbol *s;
@@ -81,12 +84,12 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         return;
     if (starts_with_word(line, ".entry"))
     {
-        sl_append(sl, parse_symbol_attribute(line + 6, ENTRY)); /* 6 == strlen(".entry") */
+        sl_append(sl, parse_symbol_attribute(line + 6, ENTRY), eh); /* 6 == strlen(".entry") */
         return;
     }
     else if (starts_with_word(line, ".extern"))
     {
-        sl_append(sl, parse_symbol_attribute(line + 7, EXTERNAL)); /* 7 == strlen(".extern") */
+        sl_append(sl, parse_symbol_attribute(line + 7, EXTERNAL), eh); /* 7 == strlen(".extern") */
         return;
     }
     else if ((s = get_symbol_instantiation(line)))
@@ -106,10 +109,10 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
 
         line += 5;
         number = strtok(line, ",");
-        add_int(number, dl);
+        add_int(number, dl, eh);
         while (NULL != (number = strtok(NULL, ",")))
         {
-            add_int(number, dl);
+            add_int(number, dl, eh);
         }
     }
     else if (starts_with_word(line, ".string"))
@@ -126,16 +129,28 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         line += skip_spaces(line);
         if (line[0] != '"')
         {
-            /*ERROR NOT A STRING*/
+            error(eh, NOT_A_STRING);
             return;
         }
         line++;
 
         if (NULL != (end = strchr(line, '"')))
         {
-
-            *end = '\0';
-            dl_append_string(dl, line);
+            if (is_last_word(end))
+            {
+                *end = '\0';
+                dl_append_string(dl, line);
+            }
+            else
+            {
+                error(eh, EXTRANOUS_TEXT);
+                return;
+            }
+        }
+        else
+        {
+            error(eh, NOT_A_STRING);
+            return;
         }
     }
     else /* code */
@@ -159,7 +174,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
 
         if (opcode == -1)
         {
-            /* ERROR ILLEGAL OPCODE */
+            error(eh, UNKNOWN_OPCODE);
             return;
         }
 
@@ -167,26 +182,27 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         part = strtok(line, ",");
         if (part) /* first arg */
         {
-            operands[i++] = parse_operand(part);
+            operands[i++] = parse_operand(part, eh);
             part = strtok(NULL, ",");
 
             if (part) /* second arg */
             {
-                operands[i++] = parse_operand(part);
+                operands[i++] = parse_operand(part, eh);
             }
         }
         if (strtok(NULL, ",") != NULL) /* third arg (error) */
         {
-            /* ERROR TOO MANY ARGUMENTS */
+            error(eh, OPERAND_COUNT_MISMATCH);
+            return;
         }
 
         il1_append(il1, i1_create(opcode, operands, i));
     }
     if (s)
-        sl_append(sl, s);
+        sl_append(sl, s, eh);
 }
 
-instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, external_list *el, int *ic)
+instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, external_list *el, int *ic, error_handler *eh)
 {
     int i;
     (*ic)++;
@@ -222,10 +238,10 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, externa
         *ic += get_operand_size(inst->operands[i]);
     }
 
-    return i_create(inst->opcode, inst->operand_count, inst->operands);
+    return i_create(inst->opcode, inst->operand_count, inst->operands, eh);
 }
 
-int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, symbol_list *sl, external_list *el)
+int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, symbol_list *sl, external_list *el, error_handler *eh)
 {
     int length = il1_get_length(il1), i, ic = 100;
     instruction_pass1 *inst;
@@ -234,7 +250,7 @@ int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, sy
 
     for (i = 0; i < length; i++)
     {
-        (*inst_list)[i] = fill_symbol(inst, sl, el, &ic);
+        (*inst_list)[i] = fill_symbol(inst, sl, el, &ic, eh);
 
         inst = i1_get_next(inst);
     }

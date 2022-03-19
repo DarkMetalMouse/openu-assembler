@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "operand.h"
 #include "opcode.h"
+#include "error_handler.h"
 
 typedef enum ARE
 {
@@ -43,7 +44,7 @@ typedef struct instruction_pass2
 } instruction_pass2;
 
 int i2_size();
-instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[]);
+instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[], error_handler *eh);
 void i_set_next(instruction_pass2 *inst, instruction_pass2 *next);
 instruction_pass2 *i_get_next(instruction_pass2 *inst);
 int i_get_size(instruction_pass2 *inst);

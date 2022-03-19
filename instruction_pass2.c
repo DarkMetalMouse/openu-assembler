@@ -106,14 +106,14 @@ void i_write_operand(instruction_pass2 *inst, operand operand, int is_dest)
     }
 }
 
-instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[])
+instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[], error_handler *eh)
 {
     instruction_pass2 *inst = NULL;
     int size = 1; /* minimum instruction size */
     int i;
     if (!is_n_operands(opcode, operand_count))
     {
-        /* ERROR OPERAND COUNT MISMATCH */
+        error(eh, OPERAND_COUNT_MISMATCH);
         return inst;
     }
 

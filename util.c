@@ -21,7 +21,7 @@ int skip_spaces(char *s)
 int is_last_word(char *s)
 {
     int i = 0;
-    while (isalnum(s[i]))
+    while (s[i] != '\0' && !isspace(s[i]))
     {
         i++;
     }

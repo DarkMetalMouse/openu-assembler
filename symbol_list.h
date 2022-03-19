@@ -2,6 +2,7 @@
 #define _SYMBOL_LIST_H
 
 #include <stdint.h>
+#include "error_handler.h"
 
 typedef enum symbol_type
 {
@@ -45,7 +46,7 @@ typedef struct symbol_list
 } symbol_list;
 
 symbol_list *sl_create();
-void sl_append(symbol_list *sl, symbol *s);
+void sl_append(symbol_list *sl, symbol *s, error_handler *eh);
 symbol *sl_get(symbol_list *sl, char *name);
 void sl_destroy(symbol_list *sl);
 void sl_update_data_address(symbol_list *sl, uint16_t icf);

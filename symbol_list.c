@@ -85,7 +85,7 @@ void s_set_address(symbol *s, uint16_t address)
     s->address = address;
 }
 
-void sl_append(symbol_list *sl, symbol *s)
+void sl_append(symbol_list *sl, symbol *s, error_handler *eh)
 {
     symbol *ptr;
 
@@ -107,16 +107,19 @@ void sl_append(symbol_list *sl, symbol *s)
             {
                 if (ptr->attribute == EXTERNAL)
                 {
-                    /* ERROR EXTENTAL CANNOT BE DEFINED INTARNALLY */
-                }
-                if (ptr->address == 0)
-                {
-                    ptr->address = s->address;
-                    ptr->type = s->type; /* if we know the address we know the type */
+                    error(eh, EXTERN_DEFINED_IN_FILE);
                 }
                 else
                 {
-                    /* ERROR DUPLICATE LABEL*/
+                    if (ptr->address == 0)
+                    {
+                        ptr->address = s->address;
+                        ptr->type = s->type; /* if we know the address we know the type */
+                    }
+                    else
+                    {
+                        error(eh, DUPLICATE_LABEL);
+                    }
                 }
             }
             else
@@ -125,7 +128,7 @@ void sl_append(symbol_list *sl, symbol *s)
 
                 if ((s->attribute | ptr->attribute) == 3) /* 01|10 == 11 */
                 {
-                    /* ERROR SYMBOL CANNOT BE BOTH EXTENTAL AND INTERNAL */
+                    error(eh, EXTERNAL_AND_ENTRY);
                 }
                 else
                 { /* 00|XX, XX|XX */

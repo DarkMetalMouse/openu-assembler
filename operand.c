@@ -65,9 +65,8 @@ int get_reg(char *s)
     return -1;
 }
 
-operand parse_operand(char *s)
+operand parse_operand(char *s, error_handler *eh)
 {
-    operand o;
     int reg = -1;
     s += skip_spaces(s);
     trim_word(s);
@@ -80,11 +79,13 @@ operand parse_operand(char *s)
         num = strtol(s, &extra, 10);
         if (extra[0] != '\0')
         {
-            /* ERROR NOT A NUMBER */
+            error(eh, NOT_A_NUMBER);
+            return o_create_immidiate(0);
         }
         else if (num > INT16_MAX || num < INT16_MIN)
         {
-            /* ERROR NUM MUST BE A 16 BIT INTEGER */
+            error(eh, NUMBER_OUT_OF_RANGE);
+            return o_create_immidiate(0);
         }
         else
         {
@@ -126,20 +127,21 @@ operand parse_operand(char *s)
                     }
                     else
                     {
-                        /* ERROR UNKNOWN REGISTER */
+                        error(eh, UNKNOWN_REGISTER);
+                        return o_create_index_1(s, 0);
                     }
                 }
                 else
                 {
-                    /* ERROR ILLEGAL ARGUMENT */
+                    error(eh, ILLEGAL_ARGUMENT);
+                    o_create_index_1(s, reg);
                 }
             }
             else
             {
-                /* ERROR ILLEGAL ARGUMENT */
+                o_create_index_1("", 0);
             }
         }
     }
-    o.type = -1;
-    return o;
+    return o_create_immidiate(0); /* we shouldn't get here anyways*/
 }
