@@ -55,7 +55,7 @@ void dl_destroy(data_list *dl) {
     free(dl);
 }
 
-int main(int argc, char const *argv[])
+/* int main(int argc, char const *argv[])
 {
     data_list *dl = dl_create();
     char *s = "abcd";
@@ -68,5 +68,5 @@ int main(int argc, char const *argv[])
 
     dl_destroy(dl);
     return 0;
-}
+} */
 

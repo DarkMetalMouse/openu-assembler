@@ -22,6 +22,7 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
 int s_set_name(symbol *s, char *name);
 int s_get_name_length(symbol *s);
 void s_set_type(symbol *s, symbol_type type);
+void s_set_address(symbol *s, uint16_t address);
 void s_destroy(symbol *s);
 
 typedef struct symbol_list symbol_list;

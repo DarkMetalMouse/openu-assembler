@@ -1,6 +1,6 @@
-OBJS	= instruction.o operand.o
-SOURCE	= instruction.c operand.c
-HEADER	= instruction.h operand.h
+OBJS	= instruction_pass2.o operand.o
+SOURCE	= instruction_pass2.c operand.c
+HEADER	= instruction_pass2.h operand.h
 OUT	= instruction
 CC	 = gcc
 FLAGS	 = -g -c -Wall
@@ -9,8 +9,8 @@ LFLAGS	 =
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-instruction.o: instruction.c
-	$(CC) $(FLAGS) instruction.c 
+instruction_pass2.o: instruction_pass2.c
+	$(CC) $(FLAGS) instruction_pass2.c 
 
 operand.o: operand.c
 	$(CC) $(FLAGS) operand.c 

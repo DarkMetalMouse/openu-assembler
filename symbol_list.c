@@ -72,13 +72,19 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
     return s;
 }
 
-int s_get_name_length(symbol *s) {
+int s_get_name_length(symbol *s)
+{
     return strlen(s->name);
 }
 
 void s_set_type(symbol *s, symbol_type type)
 {
     s->type = type;
+}
+
+void s_set_address(symbol *s, uint16_t address)
+{
+    s->address = address;
 }
 
 void sl_append(symbol_list *sl, symbol *s)

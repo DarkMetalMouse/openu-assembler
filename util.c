@@ -37,7 +37,7 @@ int is_last_word(char *s)
 void trim_word(char *s)
 {
     int i = 0;
-    while (isalnum(s[i]))
+    while (s[i] != '\0' && !isspace(s[i]))
     {
         i++;
     }
@@ -51,4 +51,36 @@ int starts_with_word(char *s, char *word)
 {
     int len = strlen(word);
     return strncmp(s, word, len) == 0 && strlen(s) > 6 && isspace(*(s + len));
+}
+
+char *get_next_word(char *line)
+{
+    char *word = NULL;
+    int i = 0;
+    while (line[i] != '\0' && !isspace(line[i]))
+    {
+        i++;
+    }
+    if (i > 0)
+    {
+        word = malloc(sizeof(char) * i);
+        strncpy(word, line, i);
+        word[i] = '\0';
+    }
+    return word;
+}
+
+char *get_next_num(char *line)
+{
+    char *word;
+    int i = 0;
+    while (isdigit(line[i]))
+    {
+        i++;
+    }
+    word = malloc(sizeof(char) * i);
+    strncpy(word, line, i - 1);
+    word[i] = '\0';
+
+    return word;
 }
