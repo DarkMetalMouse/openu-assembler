@@ -3,31 +3,10 @@
 
 #include <stdint.h>
 #include "operand.h"
+#include "opcode.h"
 
 typedef struct instruction_pass2 instruction_pass2;
 
-typedef enum opcode
-{
-    mov,
-    cmp,
-    add,
-    sub,
-
-    lea,
-    clr,
-    not,
-    inc,
-
-    dec,
-    jmp,
-    bne,
-    jsr,
-
-    red,
-    prn,
-    rts,
-    stop
-} opcode;
 
 typedef enum ARE
 {
@@ -35,8 +14,6 @@ typedef enum ARE
     relocatable = 1 << 1,
     external = 1 << 0
 } ARE;
-
-opcode get_opcode(char *name);
 
 instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[]);
 void i_set_next(instruction_pass2 *inst, instruction_pass2 *next);

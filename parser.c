@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include "data_list.h"
 #include "instruction_list_pass1.h"
-#include "instruction_pass2.h"
 #include "operand.h"
 #include "symbol_list.h"
 #include "util.h"
+#include "opcode.h"
 
 symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
 {

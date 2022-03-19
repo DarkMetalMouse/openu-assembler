@@ -6,74 +6,7 @@
 #include "util.h"
 #include "instruction_pass2.h"
 #include "operand.h"
-
-#define OPCODE_COUNT 16
-
-const char *OPCODE_STRING[] =
-    {
-        "mov",
-        "cmp",
-        "add",
-        "sub",
-
-        "lea",
-        "clr",
-        "not",
-        "inc",
-
-        "dec",
-        "jmp",
-        "bne",
-        "jsr",
-
-        "red",
-        "prn",
-        "rts",
-        "stop"};
-
-const int OPCODE_VALUE[] =
-    {
-        0,
-        1,
-        2,
-        2,
-
-        4,
-        5,
-        5,
-        5,
-
-        5,
-        9,
-        9,
-        9,
-
-        12,
-        13,
-        14,
-        15};
-
-const int OPCODE_FUNCT[] =
-    {
-        0,
-        0,
-        10,
-        11,
-
-        0,
-        10,
-        11,
-        12,
-
-        13,
-        10,
-        11,
-        12,
-
-        0,
-        0,
-        0,
-        0};
+#include "opcode.h"
 
 typedef union word
 {
@@ -106,30 +39,17 @@ typedef struct instruction_pass2
     instruction_pass2 *next;
 } instruction_pass2;
 
-opcode get_opcode(char *name)
-{
-    int i;
-    for (i = 0; i < OPCODE_COUNT; i++)
-    {
-        if (strcmp(name, OPCODE_STRING[i]) == 0)
-        {
-            return (opcode)i;
-        }
-    }
-    return -1;
-}
-
 int is_n_operands(opcode opcode, int n)
 {
     switch (n)
     {
     /* all n operand opcodes are WITHIN unique ranges */
     case 0:
-        return WITHIN(OPCODE_VALUE[opcode], rts, stop);
+        return WITHIN(get_opcode_value(opcode), rts, stop);
     case 1:
-        return WITHIN(OPCODE_VALUE[opcode], clr, prn);
+        return WITHIN(get_opcode_value(opcode), clr, prn);
     case 2:
-        return WITHIN(OPCODE_VALUE[opcode], mov, lea);
+        return WITHIN(get_opcode_value(opcode), mov, lea);
     default:
         return 0;
     }
@@ -241,7 +161,7 @@ instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[]
     }
     inst = i_allocate(size);
 
-    i_fill(inst, 1 << OPCODE_VALUE[opcode], absolute);
+    i_fill(inst, 1 << get_opcode_value(opcode), absolute);
     inst->filled++; /* skip funct for now */
 
     switch (operand_count)
@@ -254,7 +174,7 @@ instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[]
     case 1: /* handle destination operand */
 
         i_write_operand(inst, operands[operand_count - 1], 1); /* operand_count - 1 : 2 operands -> index 1; 1 operand -> index 0*/
-        inst->words[1].format.data.funct_word.funct = OPCODE_FUNCT[opcode];
+        inst->words[1].format.data.funct_word.funct = get_opcode_funct(opcode);
         inst->words[1].format.ARE = absolute;
 
         /* fallthrough */
