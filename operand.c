@@ -33,14 +33,14 @@ operand o_create_direct_2(uint16_t address, int is_external)
 
 operand o_create_index_1(char *symbol, unsigned int r)
 {
-    return (operand){.data_type.indexed.address.pass1 = symbol, //
-                     .data_type.indexed.reg = r,                //
+    return (operand){.data_type.indexed.address.pass1 = dupstr(symbol), //
+                     .data_type.indexed.reg = r,                        //
                      .type = indexed};
 }
 
 operand o_create_direct_1(char *symbol)
 {
-    return (operand){.data_type.address.pass1 = symbol, //
+    return (operand){.data_type.address.pass1 = dupstr(symbol), //
                      .type = direct};
 }
 

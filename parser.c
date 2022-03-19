@@ -7,12 +7,12 @@
 #include "symbol_list.h"
 #include "util.h"
 #include "opcode.h"
+#include "instruction_pass2.h"
 
 symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
 {
     symbol *s;
     char *name;
-    line += 6; /* 6 == strlen(".entry") */
     line += skip_spaces(line);
     name = get_next_word(line);
     if (is_last_word(line))
@@ -80,12 +80,12 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         return;
     if (starts_with_word(line, ".entry"))
     {
-        sl_append(sl, parse_symbol_attribute(line, ENTRY));
+        sl_append(sl, parse_symbol_attribute(line + 6, ENTRY)); /* 6 == strlen(".entry") */
         return;
     }
     else if (starts_with_word(line, ".extern"))
     {
-        sl_append(sl, parse_symbol_attribute(line, EXTERNAL));
+        sl_append(sl, parse_symbol_attribute(line + 7, EXTERNAL)); /* 7 == strlen(".extern") */
         return;
     }
     else if ((s = get_symbol_instantiation(line)))
@@ -97,6 +97,12 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
     {
         char *number;
 
+        if (s)
+        {
+            s_set_type(s, DATA);
+            s_set_address(s, dl_get_dc(dl));
+        }
+
         line += 5;
         number = strtok(line, ",");
         add_int(number, dl);
@@ -104,16 +110,17 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         {
             add_int(number, dl);
         }
-        if (s)
-
-        {
-            s_set_type(s, DATA);
-            s_set_address(s, dl_get_dc(dl));
-        }
     }
     else if (starts_with_word(line, ".string"))
     {
         char *end;
+
+        if (s)
+        {
+            s_set_type(s, DATA);
+            s_set_address(s, dl_get_dc(dl));
+        }
+
         line += 7;
         line += skip_spaces(line);
         if (line[0] != '"')
@@ -129,19 +136,20 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
             *end = '\0';
             dl_append_string(dl, line);
         }
-
-        if (s)
-        {
-            s_set_type(s, DATA);
-            s_set_address(s, dl_get_dc(dl));
-        }
     }
-    else
+    else /* code */
     {
         char *part;
         int i = 0;
         operand operands[MAX_OPERAND_COUNT];
         opcode opcode;
+
+        if (s)
+        {
+            s_set_type(s, CODE);
+            s_set_address(s, il1_get_ic(il1));
+        }
+
         line += skip_spaces(line);
         part = get_next_word(line); /* TODO: parse stop correctly */
         line += strlen(part);
@@ -154,6 +162,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
             return;
         }
 
+        line += skip_spaces(line);
         part = strtok(line, ",");
         if (part) /* first arg */
         {
@@ -171,38 +180,70 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         }
 
         il1_append(il1, i1_create(opcode, operands, i));
-
-        if (s)
-        {
-            s_set_type(s, CODE);
-            s_set_address(s, il1_get_ic(il1));
-        }
     }
     if (s)
         sl_append(sl, s);
 }
 
+instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl)
+{
+    int i;
+    for (i = 0; i < inst->operand_count; i++)
+    {
+        address *address = NULL;
+        if (inst->operands[i].type == indexed)
+        {
+            address = &inst->operands[i].data_type.indexed.address;
+        }
+        else if (inst->operands[i].type == direct)
+        {
+            address = &inst->operands[i].data_type.address;
+        }
+        if (address != NULL)
+        {
+            symbol *s = sl_get(sl, (*address).pass1);
+            (*address).pass2.is_external = s_get_attribute(s) == EXTERNAL;
+            (*address).pass2.value = s_get_address(s);
+        }
+    }
+
+    return i_create(inst->opcode, inst->operand_count, inst->operands);
+}
+
+instruction_pass2 **fill_symbols(instruction_list_pass1 *il1, symbol_list *sl)
+{
+    int length = il1_get_length(il1), i;
+    instruction_pass2 **inst_list = malloc(i2_size() * length);
+
+    instruction_pass1 *inst = il1_get_head(il1);
+
+    for (i = 0; i < length; i++)
+    {
+        inst_list[i] = fill_symbol(inst, sl);
+        i_print(inst_list[i]);
+
+        inst = i1_get_next(inst);
+    }
+    return inst_list;
+}
+
 int main(int argc, char const *argv[])
 {
+    FILE *fp = fopen("ps.as", "r");
+    char line[MAX_LINE + 1];
     symbol_list *sl = sl_create();
     instruction_list_pass1 *il1 = il1_create();
     data_list *dl = dl_create();
-    /*     parse_line(dupstr("LIST: .data 9,-6"), il1, dl, sl);
-        parse_line(dupstr("SYMBOL: .data 1,2,2"), il1, dl, sl);
-        parse_line(dupstr("\t \t\t.entry\tLIST\t\t"), il1, dl, sl);
-        parse_line(dupstr(".string \"Hello, World!\""), il1, dl, sl); */
-    parse_line(dupstr("add r3, LIST"), il1, dl, sl);
-    parse_line(dupstr("prn #48"), il1, dl, sl);
-    parse_line(dupstr("lea STR, r6"), il1, dl, sl);
-    parse_line(dupstr("inc r6"), il1, dl, sl);
-    parse_line(dupstr("mov r3, W"), il1, dl, sl);
-    parse_line(dupstr("sub r1, r4"), il1, dl, sl);
-    parse_line(dupstr("bne END"), il1, dl, sl);
-    parse_line(dupstr("cmp val1, #-6"), il1, dl, sl);
-    parse_line(dupstr("bne END[r15]"), il1, dl, sl);
-    parse_line(dupstr("dec K"), il1, dl, sl);
-    parse_line(dupstr("sub LOOP[r10] ,r14"), il1, dl, sl);
-    parse_line(dupstr("stop"), il1, dl, sl);
 
+    while (fgets(line, MAX_LINE + 1, fp))
+    {
+        parse_line(line, il1, dl, sl);
+    }
+
+    sl_update_data_address(sl, il1_get_ic(il1));
+
+    instruction_pass2 **inst_list = fill_symbols(il1, sl);
+
+    fclose(fp);
     return 0;
 }

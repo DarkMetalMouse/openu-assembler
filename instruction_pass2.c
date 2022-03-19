@@ -36,8 +36,12 @@ typedef struct instruction_pass2
     word *words;
     int size;
     int filled;
-    instruction_pass2 *next;
 } instruction_pass2;
+
+int i2_size()
+{
+    return sizeof(instruction_pass2);
+}
 
 int is_n_operands(opcode opcode, int n)
 {
@@ -61,18 +65,7 @@ instruction_pass2 *i_allocate(int size)
     inst->size = size;
     inst->filled = 0;
     inst->words = malloc(sizeof(word) * size);
-    inst->next = NULL;
     return inst;
-}
-
-void i_set_next(instruction_pass2 *inst, instruction_pass2 *next)
-{
-    inst->next = next;
-}
-
-instruction_pass2 *i_get_next(instruction_pass2 *inst)
-{
-    return inst->next;
 }
 
 int i_get_size(instruction_pass2 *inst)

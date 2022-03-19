@@ -76,6 +76,15 @@ int s_get_name_length(symbol *s)
 {
     return strlen(s->name);
 }
+symbol_attribute s_get_attribute(symbol *s)
+{
+    return s->attribute;
+}
+
+uint16_t s_get_address(symbol *s)
+{
+    return s->address;
+}
 
 void s_set_type(symbol *s, symbol_type type)
 {
@@ -185,6 +194,19 @@ void sl_destroy(symbol_list *sl)
         s_destroy(tmp);
     }
     free(sl);
+}
+void sl_update_data_address(symbol_list *sl, uint16_t icf)
+{
+    symbol *ptr = sl->head;
+    while (ptr != NULL)
+    {
+        if (ptr->type == DATA)
+        {
+            ptr->address += icf;
+        }
+
+        ptr = ptr->next;
+    }
 }
 
 /*int main(int argc, char const *argv[])

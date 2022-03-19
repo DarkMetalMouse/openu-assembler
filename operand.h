@@ -14,26 +14,28 @@ typedef enum operand_type
     reg
 } operand_type;
 
+typedef union address
+{
+
+    char *pass1;
+    struct pass2
+    {
+        uint16_t value;
+        unsigned int is_external : 1;
+    } pass2;
+} address;
+
 typedef struct operand
 {
     union data_type
     {
         uint16_t imm;
 
-        union address
-        {
-
-            char *pass1;
-            struct pass2
-            {
-                uint16_t value;
-                unsigned int is_external : 1;
-            } pass2;
-        } address;
+        address address;
 
         struct indexed
         {
-            union address address;
+            address address;
             unsigned int reg : 4;
         } indexed;
 

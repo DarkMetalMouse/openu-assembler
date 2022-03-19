@@ -5,15 +5,6 @@
 
 #define CODE_OFFSET 100
 
-typedef struct instruction_pass1
-{
-    opcode opcode;
-    operand operands[2];
-    int operand_count;
-    instruction_pass1 *next;
-
-} instruction_pass1;
-
 typedef struct instruction_list_pass1
 {
     instruction_pass1 *head;
@@ -72,4 +63,26 @@ void il1_append(instruction_list_pass1 *il1, instruction_pass1 *i1)
     };
     il1->tail->next = i1;
     il1->tail = i1;
+}
+
+int il1_get_length(instruction_list_pass1 *il1)
+{
+    int len = 0;
+    instruction_pass1 *ptr = il1->head;
+    while (ptr != NULL)
+    {
+        len++;
+        ptr = ptr->next;
+    }
+    return len;
+}
+
+instruction_pass1 *il1_get_head(instruction_list_pass1 *il1)
+{
+    return il1->head;
+}
+
+instruction_pass1 *i1_get_next(instruction_pass1 *i1)
+{
+    return i1->next;
 }
