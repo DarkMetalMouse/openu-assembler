@@ -1,6 +1,6 @@
-OBJS	= parser.o data_list.o instruction_list_pass1.o  operand.o symbol_list.o util.o opcode.o instruction_pass2.o
-SOURCE	= parser.c data_list.c instruction_list_pass1.c  operand.c symbol_list.c util.c opcode.c instruction_pass2.c
-HEADER	= data_list.h instruction_list_pass1.h  operand.h symbol_list.h util.h opcode.h instruction_pass2.h
+OBJS	= parser.o data_list.o instruction_list_pass1.o  operand.o symbol_list.o util.o opcode.o instruction_pass2.o writer.o
+SOURCE	= parser.c data_list.c instruction_list_pass1.c  operand.c symbol_list.c util.c opcode.c instruction_pass2.c writer.c
+HEADER	=          data_list.h instruction_list_pass1.h  operand.h symbol_list.h util.h opcode.h instruction_pass2.h writer.h
 OUT	= parser
 CC	 = gcc
 FLAGS	 = -g -c -Wall
@@ -33,6 +33,8 @@ opcode.o: opcode.c
 instruction_pass2.o: instruction_pass2.c
 	$(CC) $(FLAGS) instruction_pass2.c 
 
+writer.o: writer.c
+	$(CC) $(FLAGS) writer.c 
 
 clean:
 	rm -f $(OBJS) $(OUT)

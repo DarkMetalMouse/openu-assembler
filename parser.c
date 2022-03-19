@@ -8,6 +8,7 @@
 #include "util.h"
 #include "opcode.h"
 #include "instruction_pass2.h"
+#include "writer.h"
 
 symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
 {
@@ -185,9 +186,14 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         sl_append(sl, s);
 }
 
-instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl)
+instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, external_list *el, int *ic)
 {
     int i;
+    (*ic)++;
+    if (inst->operand_count)
+    {
+        (*ic)++;
+    }
     for (i = 0; i < inst->operand_count; i++)
     {
         address *address = NULL;
@@ -202,29 +208,37 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl)
         if (address != NULL)
         {
             symbol *s = sl_get(sl, (*address).pass1);
-            (*address).pass2.is_external = s_get_attribute(s) == EXTERNAL;
+            if (s_get_attribute(s) == EXTERNAL)
+            {
+                (*address).pass2.is_external = 1;
+                el_append(el, e_create(s_get_name(s), *ic));
+            }
+            else
+            {
+                (*address).pass2.is_external = 0;
+            }
             (*address).pass2.value = s_get_address(s);
         }
+        *ic += get_operand_size(inst->operands[i]);
     }
 
     return i_create(inst->opcode, inst->operand_count, inst->operands);
 }
 
-instruction_pass2 **fill_symbols(instruction_list_pass1 *il1, symbol_list *sl)
+int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, symbol_list *sl, external_list *el)
 {
-    int length = il1_get_length(il1), i;
-    instruction_pass2 **inst_list = malloc(i2_size() * length);
-
+    int length = il1_get_length(il1), i, ic = 100;
+    *inst_list = malloc(i2_size() * length);
     instruction_pass1 *inst = il1_get_head(il1);
 
     for (i = 0; i < length; i++)
     {
-        inst_list[i] = fill_symbol(inst, sl);
-        i_print(inst_list[i]);
+        (*inst_list)[i] = fill_symbol(inst, sl, el, &ic);
+        i_print((*inst_list)[i]);
 
         inst = i1_get_next(inst);
     }
-    return inst_list;
+    return length;
 }
 
 int main(int argc, char const *argv[])
@@ -234,6 +248,9 @@ int main(int argc, char const *argv[])
     symbol_list *sl = sl_create();
     instruction_list_pass1 *il1 = il1_create();
     data_list *dl = dl_create();
+    external_list *el = el_create();
+    instruction_pass2 **inst_list;
+    int length;
 
     while (fgets(line, MAX_LINE + 1, fp))
     {
@@ -242,7 +259,11 @@ int main(int argc, char const *argv[])
 
     sl_update_data_address(sl, il1_get_ic(il1));
 
-    instruction_pass2 **inst_list = fill_symbols(il1, sl);
+    length = fill_symbols(&inst_list, il1, sl, el);
+
+    write_entries("ps", sl);
+    write_externs("ps", el);
+    write_objects("ps", inst_list, length, dl);
 
     fclose(fp);
     return 0;

@@ -86,6 +86,11 @@ uint16_t s_get_address(symbol *s)
     return s->address;
 }
 
+char *s_get_name(symbol *s)
+{
+    return s->name;
+}
+
 void s_set_type(symbol *s, symbol_type type)
 {
     s->type = type;
@@ -207,6 +212,29 @@ void sl_update_data_address(symbol_list *sl, uint16_t icf)
 
         ptr = ptr->next;
     }
+}
+
+symbol *get_entry(symbol *s)
+{
+    while (s != NULL)
+    {
+        if (s->attribute == ENTRY)
+        {
+            return s;
+        }
+
+        s = s->next;
+    }
+    return NULL;
+}
+
+symbol *sl_get_entry(symbol_list *sl)
+{
+    return get_entry(sl->head);
+}
+symbol *s_get_entry(symbol *s)
+{
+    return get_entry(s->next);
 }
 
 /*int main(int argc, char const *argv[])
