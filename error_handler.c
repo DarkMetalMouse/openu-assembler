@@ -86,6 +86,9 @@ void error(error_handler *eh, error_type type, int count, ...)
     case INVALID_SYMBOL:
         printf("Symbol name is illegal: \"%s\"\n", va_arg(ap, char *));
         break;
+    case ILLEGAL_OPERAND_TYPE:
+        printf("Illegal operand type\n");
+        break;
     default:
         printf("error\n");
         break;

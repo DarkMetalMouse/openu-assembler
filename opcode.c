@@ -11,6 +11,55 @@
 
 #define OPCODE_COUNT 16
 
+const int LEGAL_SRC_TYPE_RANGE[][2] =
+    {
+        {0, 3},
+        {0, 3},
+        {0, 3},
+        {0, 3},
+
+        {1, 2},
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+
+        {-1, -1},
+        {-1, -1},
+        {-1, -1},
+        {-1, -1}
+
+};
+
+const int LEGAL_DST_TYPE_RANGE[][2] =
+    {
+        {1, 3},
+        {0, 3},
+        {1, 3},
+        {1, 3},
+
+        {1, 3},
+        {1, 3},
+
+        {1, 3},
+        {1, 3},
+
+        {1, 3},
+        {1, 2},
+        {1, 2},
+        {1, 2},
+
+        {1, 3},
+        {0, 3},
+        {-1, -1},
+        {-1, -1}
+
+};
+
 const char *OPCODE_STRING[] =
     {
         "mov",
@@ -113,4 +162,14 @@ int is_n_operands(opcode opcode, int n)
     default:
         return 0;
     }
+}
+
+int is_legal_dst_operand(opcode opcode, operand operand)
+{
+    return WITHIN(operand.type, LEGAL_DST_TYPE_RANGE[opcode][0], LEGAL_DST_TYPE_RANGE[opcode][1]);
+}
+
+int is_legal_src_operand(opcode opcode, operand operand)
+{
+    return WITHIN(operand.type, LEGAL_SRC_TYPE_RANGE[opcode][0], LEGAL_SRC_TYPE_RANGE[opcode][1]);
 }

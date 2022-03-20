@@ -1,3 +1,5 @@
+inc #48
+
 mov r1,
 mov ,
 

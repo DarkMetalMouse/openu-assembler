@@ -35,6 +35,31 @@ instruction_pass1 *i1_create(opcode opcode, operand operands[2], int operand_cou
     {
         error(eh, OPERAND_COUNT_MISMATCH, 0); /* keep going to avoid segfaults in the future */
     }
+    switch (operand_count)
+    {
+    case 0:
+        break;
+    case 1:
+        if (!is_legal_dst_operand(opcode, operands[0]))
+        {
+            error(eh, ILLEGAL_OPERAND_TYPE, 0);
+        }
+        break;
+    case 2:
+        if (!is_legal_dst_operand(opcode, operands[1]))
+        {
+            error(eh, ILLEGAL_OPERAND_TYPE, 0);
+        }
+        if (!is_legal_dst_operand(opcode, operands[0]))
+        {
+            error(eh, ILLEGAL_OPERAND_TYPE, 0);
+        }
+        break;
+    default:
+
+        break;
+    }
+
     i1 = malloc(sizeof(instruction_pass1));
     i1->opcode = opcode;
     i1->operands[0] = operands[0];
