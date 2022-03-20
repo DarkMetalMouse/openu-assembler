@@ -71,7 +71,7 @@ int i_get_size(instruction_pass2 *inst);
 
 /**
  * @brief get a word of the instruction
- * 
+ *
  * @param inst the instruction
  * @param i the word index
  * @return uint32_t the formatted 20bit word
@@ -84,5 +84,12 @@ uint32_t i_get_word(instruction_pass2 *inst, int i);
  * @param inst the instruction
  */
 void i_print(instruction_pass2 *inst);
+
+/**
+ * @brief free the memory used by instrution
+ *
+ * @param inst the instruction to free
+ */
+void i_destroy(instruction_pass2 *inst);
 
 #endif

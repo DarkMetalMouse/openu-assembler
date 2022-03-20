@@ -138,3 +138,9 @@ void i_print(instruction_pass2 *inst)
     }
     printf("---\n");
 }
+
+void i_destroy(instruction_pass2 *inst)
+{
+    free(inst->words);
+    free(inst);
+}

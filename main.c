@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
         FILE *fp = fopen(fname, "r");
         if (fp)
         {
+            int i;
 
             error_handler *eh = eh_create();
 
@@ -40,9 +41,12 @@ int main(int argc, char *argv[])
             int length;
             external_list *el = el_create();
 
+            printf("parsing %s\n", fname);
+
             preassembler_parse_file(fp, argv[i]);
             fclose(fp);
 
+            free(fname);
             fname = strconcat(argv[i], ".am");
             fp = fopen(fname, "r");
 
@@ -65,6 +69,16 @@ int main(int argc, char *argv[])
             }
 
             fclose(fp);
+            free(eh);
+            sl_destroy(sl);
+            il1_destroy(il1);
+            dl_destroy(dl);
+            el_destroy(el);
+            for (i = 0; i < length; i++)
+            {
+                i_destroy(inst_list[i]);
+            }
+            free(inst_list);
         }
         else
         {

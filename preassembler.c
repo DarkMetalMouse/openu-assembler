@@ -53,6 +53,7 @@ void preassembler_parse_file(FILE *fp, char name[])
                 char *copy = dupstr(&line[i]);
                 trim_word(copy);
                 found_macro = ml_get(macros, copy);
+                free(copy);
                 if (found_macro != NULL)
                 {
                     int i = 0;

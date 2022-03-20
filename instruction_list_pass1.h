@@ -80,10 +80,17 @@ int il1_get_length(instruction_list_pass1 *il1);
 
 /**
  * @brief get the first instructions
- * 
+ *
  * @param il1 the instruction list
  * @return instruction_pass1* the first instruction
  */
 instruction_pass1 *il1_get_head(instruction_list_pass1 *il1);
+
+/**
+ * @brief free the memory used by instruction list
+ * 
+ * @param il1 the instruction list
+ */
+void il1_destroy(instruction_list_pass1 *il1);
 
 #endif

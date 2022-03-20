@@ -42,6 +42,24 @@ void el_append(external_list *el, external_value *e)
     el->tail = e;
 }
 
+void e_destroy(external_value *e)
+{
+    /* free(e->name); will be called when symbol is freed */
+    free(e);
+}
+
+void el_destroy(external_list *el)
+{
+    external_value *ptr = el->head;
+    while (ptr != NULL)
+    {
+        external_value *tmp = ptr;
+        ptr = ptr->next;
+        e_destroy(tmp);
+    }
+    free(el);
+}
+
 void write_entries(char *fname, symbol_list *sl)
 {
     FILE *fp;
@@ -58,6 +76,7 @@ void write_entries(char *fname, symbol_list *sl)
         fwrite(line, sizeof(char), strlen(line), fp);
         s = s_get_entry(s);
     }
+    free(fname);
     fclose(fp);
 }
 
@@ -77,6 +96,7 @@ void write_externs(char *fname, external_list *el)
         fwrite(line, sizeof(char), strlen(line), fp);
         e = e->next;
     }
+    free(fname);
     fclose(fp);
 }
 
@@ -116,10 +136,6 @@ void write_objects(char *fname, instruction_pass2 **inst_list, int inst_count, d
         obj_write_line(fp, dl_get_val(dl, i) | (0x40000), line_num++);
         /* 0x40000 because data is always absolute */
     }
-
+    free(fname);
     fclose(fp);
-}
-
-void write_files(char *fname, instruction_pass2 **inst_list, data_list *dl, symbol_list *sl)
-{
 }

@@ -193,7 +193,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
 
         line += skip_spaces(line);
         part = strtok(line, ",");
-        if (part) /* first arg */
+        if (part && skip_spaces(part) != strlen(part)) /* first arg */
         {
             operands[i++] = parse_operand(part, eh);
             part = strtok(NULL, ",");
@@ -241,6 +241,7 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, externa
             symbol *s = sl_get(sl, (*address).pass1);
             if (s)
             {
+                free((*address).pass1);
                 if (s_get_attribute(s) == EXTERNAL)
                 {
                     (*address).pass2.is_external = 1;
@@ -256,7 +257,7 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, externa
             {
                 eh_set_line(eh, inst->line);
                 error(eh, UNDEFINED_SYMBOL, 1, (*address).pass1);
-
+                free((*address).pass1);
                 (*address).pass2.is_external = 0;
                 (*address).pass2.value = 0;
             }
