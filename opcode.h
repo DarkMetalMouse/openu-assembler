@@ -7,6 +7,8 @@
 #ifndef _OPCODE_H
 #define _OPCODE_H
 
+#include "operand.h"
+
 typedef enum opcode
 {
     mov,
@@ -62,5 +64,19 @@ opcode get_opcode(char *name);
  * @return int whether the given opcode as a given number of operands
  */
 int is_n_operands(opcode opcode, int n);
+
+/**
+ * @brief check if destination operand is legal for opcode
+ * @param opcode the opcode
+ * @param operand the operand
+ */
+int is_legal_dst_operand(opcode opcode, operand operand);
+
+/**
+ * @brief check if source operand is legal for opcode
+ * @param opcode the opcode
+ * @param operand the operand
+ */
+int is_legal_src_operand(opcode opcode, operand operand);
 
 #endif

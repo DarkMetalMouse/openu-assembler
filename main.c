@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         FILE *fp = fopen(fname, "r");
         if (fp)
         {
-            int i;
+            int j;
 
             error_handler *eh = eh_create();
 
@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
             il1_destroy(il1);
             dl_destroy(dl);
             el_destroy(el);
-            for (i = 0; i < length; i++)
+            for (j = 0; j < length; j++)
             {
-                i_destroy(inst_list[i]);
+                i_destroy(inst_list[j]);
             }
             free(inst_list);
         }

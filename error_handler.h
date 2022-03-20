@@ -18,21 +18,21 @@ typedef struct error_handler
 
 /**
  * @brief create a new error handler object
- * 
+ *
  * @return error_handler* a new error handler
  */
 error_handler *eh_create();
 
 /**
  * @brief increment the line counter
- * 
+ *
  * @param eh the error handler
  */
 void eh_next_line(error_handler *eh);
 
 /**
  * @brief get current line
- * 
+ *
  * @param eh the error handler
  * @return int the current line
  */
@@ -40,7 +40,7 @@ int eh_get_line(error_handler *eh);
 
 /**
  * @brief set the current line - useful for 2nd pass
- * 
+ *
  * @param eh the error handler
  * @param line the line number to set
  */
@@ -48,7 +48,7 @@ void eh_set_line(error_handler *eh, int line);
 
 /**
  * @brief check if the error handler caught an error before
- * 
+ *
  * @param eh the error handler
  * @return int if the error handler caught an error before
  */
@@ -68,12 +68,13 @@ typedef enum error_type
     UNKNOWN_OPCODE,         /* run r1,r2 */
     EXTRANOUS_TEXT,         /* .string "hello" abc */
     UNDEFINED_SYMBOL,       /* inc HI */
-    INVALID_SYMBOL          /* 1aa: || a-f: || aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: */
+    INVALID_SYMBOL,         /* 1aa: || a-f: || aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: */
+    ILLEGAL_OPERAND_TYPE    /* inc #48 */
 } error_type;
 
 /**
  * @brief report an error to the error handler
- * 
+ *
  * @param eh the error handler
  * @param type the type of the error
  * @param count the number of custom arguments
