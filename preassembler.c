@@ -1,3 +1,11 @@
+/**
+ * @file preassembler.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Full implimentation of preassember
+ * It does not check for error as there isn't any required error parsing at this stage
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -42,8 +50,9 @@ void preassembler_parse_file(FILE *fp, char name[])
             if (is_last_word(&line[i]))
             {
                 macro *found_macro;
-                trim_word(&line[i]);
-                found_macro = ml_get(macros, &line[i]);
+                char *copy = dupstr(&line[i]);
+                trim_word(copy);
+                found_macro = ml_get(macros, copy);
                 if (found_macro != NULL)
                 {
                     int i = 0;
@@ -68,10 +77,3 @@ void preassembler_parse_file(FILE *fp, char name[])
     free(fname);
     fclose(out);
 }
-
-/*int main(int argc, char const *argv[])
-{
-    FILE *fp = fopen("preassembler_test_1.txt", "r");
-    parsefile(fp, "preassembler");
-    return 0;
-}*/

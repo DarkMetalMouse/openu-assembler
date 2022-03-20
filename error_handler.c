@@ -1,3 +1,10 @@
+/**
+ * @file error_handler.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Implementation of error handling
+ */
+
 #include "error_handler.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,24 +24,34 @@ void eh_next_line(error_handler *eh)
     eh->line++;
 }
 
+int eh_get_line(error_handler *eh)
+{
+    return eh->line;
+}
+
+void eh_set_line(error_handler *eh, int line)
+{
+    eh->line = line;
+}
+
 int eh_had_error(error_handler *eh)
 {
     return eh->had_error;
 }
 
-void error(error_handler *eh, error_type type, ...)
+void error(error_handler *eh, error_type type, int count, ...)
 {
-    /* char buf[ERROR_SIZE]; */
+    va_list ap;
     eh->had_error = 1;
     printf("ERROR in line %d: ", eh->line);
-
+    va_start(ap, count);
     switch (type)
     {
     case OPERAND_COUNT_MISMATCH:
-        printf("Instruction takes %%d arguments but %%d were given\n");
+        printf("Incorrect number of arguments\n");
         break;
     case EXTERN_DEFINED_IN_FILE:
-        printf("Symbol can't be external and defined in the file at the same time");
+        printf("Symbol can't be external and defined in the file at the same time\n");
         break;
     case DUPLICATE_LABEL:
         printf("Duplicate symbol\n");
@@ -43,27 +60,32 @@ void error(error_handler *eh, error_type type, ...)
         printf("Symbol can't be external and entry in the same file\n");
         break;
     case NOT_A_NUMBER:
-        printf("\"%%d\" is not a number\n");
+        printf("\"%s\" is not a number\n", va_arg(ap, char *));
         break;
     case NUMBER_OUT_OF_RANGE:
-        printf("\"%%d\" must be a signed 16 bit integer\n");
+        printf("\"%s\" must be a signed 16 bit integer\n", va_arg(ap, char *));
         break;
     case UNKNOWN_REGISTER:
-        printf("Unknown register \"%%s\"");
+        printf("Unknown register \"%s\"\n", va_arg(ap, char *));
         break;
     case ILLEGAL_ARGUMENT:
-        printf("Illegal argument \"%%s\"");
+        printf("Illegal argument \"%s\"\n", va_arg(ap, char *));
         break;
     case NOT_A_STRING:
         printf(".string must be followed by a double quoted string\n");
         break;
     case UNKNOWN_OPCODE:
-        printf("Unknown opcode\n");
+        printf("Unknown opcode \"%s\"\n", va_arg(ap, char *));
         break;
     case EXTRANOUS_TEXT:
         printf("Extranous text\n");
         break;
-
+    case UNDEFINED_SYMBOL:
+        printf("Symbol \"%s\" referenced but not defined\n", va_arg(ap, char *));
+        break;
+    case INVALID_SYMBOL:
+        printf("Symbol name is illegal: \"%s\"\n", va_arg(ap, char *));
+        break;
     default:
         printf("error\n");
         break;

@@ -1,3 +1,10 @@
+/**
+ * @file instruction_pass2.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * 2nd pass instruction, it contains all the data formatted and ready to be printed to the file
+ */
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -7,27 +14,6 @@
 #include "instruction_pass2.h"
 #include "operand.h"
 #include "opcode.h"
-
-int i2_size()
-{
-    return sizeof(instruction_pass2);
-}
-
-int is_n_operands(opcode opcode, int n)
-{
-    switch (n)
-    {
-    /* all n operand opcodes are WITHIN unique ranges */
-    case 0:
-        return WITHIN(get_opcode_value(opcode), rts, stop);
-    case 1:
-        return WITHIN(get_opcode_value(opcode), clr, prn);
-    case 2:
-        return WITHIN(get_opcode_value(opcode), mov, lea);
-    default:
-        return 0;
-    }
-}
 
 instruction_pass2 *i_allocate(int size)
 {
@@ -111,11 +97,6 @@ instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[]
     instruction_pass2 *inst = NULL;
     int size = 1; /* minimum instruction size */
     int i;
-    if (!is_n_operands(opcode, operand_count))
-    {
-        error(eh, OPERAND_COUNT_MISMATCH);
-        return inst;
-    }
 
     size += operand_count ? 1 : 0; /* funct word space only applicable for instructions with operands*/
     for (i = 0; i < operand_count; i++)
@@ -157,46 +138,3 @@ void i_print(instruction_pass2 *inst)
     }
     printf("---\n");
 }
-
-/* int main(int argc, char const *argv[])
-{
-    instruction_pass2 *i;
-
-    i = i_create(add, 2, (operand[]){o_create_reg(3), o_create_direct_2(146, 0)});
-    i_print(i);
-
-    i = i_create(prn, 1, (operand[]){o_create_immidiate(48)});
-    i_print(i);
-
-    i = i_create(lea, 2, (operand[]){o_create_direct_2(141, 0), o_create_reg(6)});
-    i_print(i);
-
-    i = i_create(inc, 1, (operand[]){o_create_reg(6)});
-    i_print(i);
-
-    i = i_create(mov, 2, (operand[]){o_create_reg(3), o_create_direct_2(0, 1)});
-    i_print(i);
-
-    i = i_create(sub, 2, (operand[]){o_create_reg(1), o_create_reg(4)});
-    i_print(i);
-
-    i = i_create(bne, 1, (operand[]){o_create_direct_2(140, 0)});
-    i_print(i);
-
-    i = i_create(cmp, 2, (operand[]){o_create_direct_2(0, 1), o_create_immidiate(-6)});
-    i_print(i);
-
-    i = i_create(bne, 1, (operand[]){o_create_index_2(149, 15, 0)});
-    i_print(i);
-
-    i = i_create(dec, 1, (operand[]){o_create_direct_2(149, 0)});
-    i_print(i);
-
-    i = i_create(sub, 2, (operand[]){o_create_index_2(104, 10, 0), o_create_reg(14)});
-    i_print(i);
-
-    i = i_create(stop, 0, (operand[]){});
-    i_print(i);
-
-    return 0;
-} */

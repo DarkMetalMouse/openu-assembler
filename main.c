@@ -1,3 +1,12 @@
+/**
+ * @file main.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ *
+ * The main program, it runs the preassembler, 1st pass, 2nd pass and file writing.
+ * Mostly following the algorithem skeleton
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "symbol_list.h"
@@ -43,19 +52,17 @@ int main(int argc, char *argv[])
                 eh_next_line(eh);
             }
 
+            /* update data list with icf */
             sl_update_data_address(sl, il1_get_ic(il1));
 
             length = fill_symbols(&inst_list, il1, sl, el, eh);
 
             if (!eh_had_error(eh))
             {
-                            write_entries(argv[i], sl);
-            write_externs(argv[i], el);
-            write_objects(argv[i], inst_list, length, dl, il1_get_ic(il1));
+                write_entries(argv[i], sl);
+                write_externs(argv[i], el);
+                write_objects(argv[i], inst_list, length, dl, il1_get_ic(il1));
             }
-            
-
-
 
             fclose(fp);
         }

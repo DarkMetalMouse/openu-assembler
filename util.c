@@ -1,3 +1,10 @@
+/**
+ * @file util.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Utility functions
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -50,7 +57,7 @@ void trim_word(char *s)
 int starts_with_word(char *s, char *word)
 {
     int len = strlen(word);
-    return strncmp(s, word, len) == 0 && strlen(s) > 6 && isspace(*(s + len));
+    return strncmp(s, word, len) == 0 && (isspace(*(s + len)) || *(s + len) == '\0');
 }
 
 char *get_next_word(char *line)
@@ -67,21 +74,6 @@ char *get_next_word(char *line)
         strncpy(word, line, i);
         word[i] = '\0';
     }
-    return word;
-}
-
-char *get_next_num(char *line)
-{
-    char *word;
-    int i = 0;
-    while (isdigit(line[i]))
-    {
-        i++;
-    }
-    word = malloc(sizeof(char) * i);
-    strncpy(word, line, i - 1);
-    word[i] = '\0';
-
     return word;
 }
 

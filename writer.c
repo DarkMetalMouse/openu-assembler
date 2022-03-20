@@ -1,3 +1,10 @@
+/**
+ * @file writer.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Writing the complied code to the files
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -39,7 +46,7 @@ void write_entries(char *fname, symbol_list *sl)
 {
     FILE *fp;
     symbol *s;
-    char line[81];
+    char line[MAX_LINE + 1];
     fname = strconcat(fname, ".ent");
     fp = fopen(fname, "w");
     s = sl_get_entry(sl);
@@ -58,7 +65,7 @@ void write_externs(char *fname, external_list *el)
 {
     FILE *fp;
     external_value *e;
-    char line[81];
+    char line[MAX_LINE + 1];
     fname = strconcat(fname, ".ext");
     fp = fopen(fname, "w");
     e = el->head;
@@ -75,7 +82,7 @@ void write_externs(char *fname, external_list *el)
 
 void obj_write_line(FILE *fp, uint32_t value, int line_num)
 {
-    char line[81];
+    char line[MAX_LINE + 1];
 
     sprintf(line,
             "%04d A%x-B%x-C%x-D%x-E%x\n",
@@ -92,7 +99,7 @@ void write_objects(char *fname, instruction_pass2 **inst_list, int inst_count, d
 {
     FILE *fp;
     int i, j, line_num = 100;
-    char line[81];
+    char line[MAX_LINE + 1];
     fname = strconcat(fname, ".ob");
     fp = fopen(fname, "w");
     sprintf(line, "%d %d\n", icf - 100, dl_get_dc(dl));

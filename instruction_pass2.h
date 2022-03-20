@@ -1,3 +1,10 @@
+/**
+ * @file instruction_pass2.h
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * 2nd pass instruction, used unions and bit-fields to process the different types of instruction words
+ */
+
 #ifndef _INSTRUCTION_H
 #define _INSTRUCTION_H
 
@@ -43,12 +50,39 @@ typedef struct instruction_pass2
     int filled;
 } instruction_pass2;
 
-int i2_size();
+/**
+ * @brief create a new instruction
+ *
+ * @param opcode the opcode
+ * @param operand_count the number of operands
+ * @param operands the array of operands
+ * @param eh the error handler
+ * @return instruction_pass2* a new instruction
+ */
 instruction_pass2 *i_create(opcode opcode, int operand_count, operand operands[], error_handler *eh);
-void i_set_next(instruction_pass2 *inst, instruction_pass2 *next);
-instruction_pass2 *i_get_next(instruction_pass2 *inst);
+
+/**
+ * @brief get the number of words in the instruction
+ *
+ * @param inst the instruction
+ * @return int the number of words
+ */
 int i_get_size(instruction_pass2 *inst);
+
+/**
+ * @brief get a word of the instruction
+ * 
+ * @param inst the instruction
+ * @param i the word index
+ * @return uint32_t the formatted 20bit word
+ */
 uint32_t i_get_word(instruction_pass2 *inst, int i);
+
+/**
+ * @brief print an instruction to the screen
+ * this is used for debugging
+ * @param inst the instruction
+ */
 void i_print(instruction_pass2 *inst);
 
 #endif

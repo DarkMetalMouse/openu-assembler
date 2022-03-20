@@ -1,3 +1,10 @@
+/**
+ * @file macro_list.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * List of macros in the program implemented using a linked list
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

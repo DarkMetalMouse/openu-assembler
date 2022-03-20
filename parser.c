@@ -1,3 +1,10 @@
+/**
+ * @file parser.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * 1st and second pass parsing implementation
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -11,7 +18,7 @@
 #include "writer.h"
 #include "error_handler.h"
 
-symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
+symbol *parse_symbol_attribute(char *line, symbol_attribute attribute, error_handler *eh)
 {
     symbol *s;
     char *name;
@@ -19,7 +26,7 @@ symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
     name = get_next_word(line);
     if (is_last_word(line))
     {
-        s = s_create(name, 0, UNKNOWN, attribute);
+        s = s_create(name, 0, UNKNOWN, attribute, eh);
         free(name);
         return s;
     }
@@ -29,7 +36,7 @@ symbol *parse_symbol_attribute(char *line, symbol_attribute attribute)
     }
 }
 
-symbol *get_symbol_instantiation(char *line)
+symbol *get_symbol_instantiation(char *line, error_handler *eh)
 {
     symbol *s;
     int i = 0;
@@ -42,7 +49,8 @@ symbol *get_symbol_instantiation(char *line)
         return NULL;
     }
     line[i] = '\0'; /* "MAIN: mov r3,16" -> "MAIN" */
-    s = s_create(line, 0, UNKNOWN, NONE);
+
+    s = s_create(line, 0, UNKNOWN, NONE, eh);
     line[i] = ':';
     if (s == NULL)
     {
@@ -60,12 +68,12 @@ void add_int(char *number, data_list *dl, error_handler *eh)
     num = strtol(number, &extra, 10);
     if (extra[0] != '\0')
     {
-        error(eh, NOT_A_NUMBER);
+        error(eh, NOT_A_NUMBER, 1, number);
         return;
     }
     else if (num > INT16_MAX || num < INT16_MIN)
     {
-        error(eh, NUMBER_OUT_OF_RANGE);
+        error(eh, NUMBER_OUT_OF_RANGE, 1, number);
         return;
     }
     else
@@ -77,24 +85,29 @@ void add_int(char *number, data_list *dl, error_handler *eh)
 void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_list *sl, error_handler *eh)
 {
     int len;
-    symbol *s;
+    symbol *s = NULL;
     line = &line[skip_spaces(line)];
     len = strlen(line);
     if (len > 0 && line[0] == ';') /* comment line */
         return;
+    if (skip_spaces(line) == len)
+        return;
     if (starts_with_word(line, ".entry"))
     {
-        sl_append(sl, parse_symbol_attribute(line + 6, ENTRY), eh); /* 6 == strlen(".entry") */
+        sl_append(sl, parse_symbol_attribute(line + 6, ENTRY, eh), eh); /* 6 == strlen(".entry") */
         return;
     }
     else if (starts_with_word(line, ".extern"))
     {
-        sl_append(sl, parse_symbol_attribute(line + 7, EXTERNAL), eh); /* 7 == strlen(".extern") */
+        sl_append(sl, parse_symbol_attribute(line + 7, EXTERNAL, eh), eh); /* 7 == strlen(".extern") */
         return;
     }
-    else if ((s = get_symbol_instantiation(line)))
+    else if (strchr(line, ':'))
     {
-        line += s_get_name_length(s) + 1; /* "MAIN" -> " mov r3,16"*/
+        s = get_symbol_instantiation(line, eh);
+        if (!s)
+            return;
+        line += strlen(s_get_name(s)) + 1; /* "MAIN" -> " mov r3,16"*/
         line = &line[skip_spaces(line)];
     }
     if (starts_with_word(line, ".data"))
@@ -129,7 +142,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
         line += skip_spaces(line);
         if (line[0] != '"')
         {
-            error(eh, NOT_A_STRING);
+            error(eh, NOT_A_STRING, 0);
             return;
         }
         line++;
@@ -143,13 +156,13 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
             }
             else
             {
-                error(eh, EXTRANOUS_TEXT);
+                error(eh, EXTRANOUS_TEXT, 0);
                 return;
             }
         }
         else
         {
-            error(eh, NOT_A_STRING);
+            error(eh, NOT_A_STRING, 0);
             return;
         }
     }
@@ -174,7 +187,7 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
 
         if (opcode == -1)
         {
-            error(eh, UNKNOWN_OPCODE);
+            error(eh, UNKNOWN_OPCODE, 1, part);
             return;
         }
 
@@ -185,21 +198,23 @@ void parse_line(char *line, instruction_list_pass1 *il1, data_list *dl, symbol_l
             operands[i++] = parse_operand(part, eh);
             part = strtok(NULL, ",");
 
-            if (part) /* second arg */
+            if (part && skip_spaces(part) != strlen(part)) /* second arg */
             {
                 operands[i++] = parse_operand(part, eh);
             }
         }
         if (strtok(NULL, ",") != NULL) /* third arg (error) */
         {
-            error(eh, OPERAND_COUNT_MISMATCH);
+            error(eh, OPERAND_COUNT_MISMATCH, 0);
             return;
         }
 
-        il1_append(il1, i1_create(opcode, operands, i));
+        il1_append(il1, i1_create(opcode, operands, i, eh));
     }
     if (s)
+    {
         sl_append(sl, s, eh);
+    }
 }
 
 instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, external_list *el, int *ic, error_handler *eh)
@@ -224,16 +239,27 @@ instruction_pass2 *fill_symbol(instruction_pass1 *inst, symbol_list *sl, externa
         if (address != NULL)
         {
             symbol *s = sl_get(sl, (*address).pass1);
-            if (s_get_attribute(s) == EXTERNAL)
+            if (s)
             {
-                (*address).pass2.is_external = 1;
-                el_append(el, e_create(s_get_name(s), *ic));
+                if (s_get_attribute(s) == EXTERNAL)
+                {
+                    (*address).pass2.is_external = 1;
+                    el_append(el, e_create(s_get_name(s), *ic));
+                }
+                else
+                {
+                    (*address).pass2.is_external = 0;
+                }
+                (*address).pass2.value = s_get_address(s);
             }
             else
             {
+                eh_set_line(eh, inst->line);
+                error(eh, UNDEFINED_SYMBOL, 1, (*address).pass1);
+
                 (*address).pass2.is_external = 0;
+                (*address).pass2.value = 0;
             }
-            (*address).pass2.value = s_get_address(s);
         }
         *ic += get_operand_size(inst->operands[i]);
     }
@@ -245,7 +271,7 @@ int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, sy
 {
     int length = il1_get_length(il1), i, ic = 100;
     instruction_pass1 *inst;
-    *inst_list = malloc(i2_size() * length);
+    *inst_list = malloc(sizeof(instruction_pass2) * length);
     inst = il1_get_head(il1);
 
     for (i = 0; i < length; i++)
@@ -256,31 +282,3 @@ int fill_symbols(instruction_pass2 ***inst_list, instruction_list_pass1 *il1, sy
     }
     return length;
 }
-
-/* int main(int argc, char const *argv[])
-{
-    FILE *fp = fopen("ps.as", "r");
-    char line[MAX_LINE + 1];
-    symbol_list *sl = sl_create();
-    instruction_list_pass1 *il1 = il1_create();
-    data_list *dl = dl_create();
-    external_list *el = el_create();
-    instruction_pass2 **inst_list;
-    int length;
-
-    while (fgets(line, MAX_LINE + 1, fp))
-    {
-        parse_line(line, il1, dl, sl);
-    }
-
-    sl_update_data_address(sl, il1_get_ic(il1));
-
-    length = fill_symbols(&inst_list, il1, sl, el);
-
-    write_entries("ps", sl);
-    write_externs("ps", el);
-    write_objects("ps", inst_list, length, dl, il1_get_ic(il1));
-
-    fclose(fp);
-    return 0;
-} */

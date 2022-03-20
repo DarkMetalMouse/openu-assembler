@@ -1,3 +1,10 @@
+/**
+ * @file operand.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * The operand implementation
+ */
+
 #include "operand.h"
 #include "util.h"
 #include <stdlib.h>
@@ -69,6 +76,12 @@ operand parse_operand(char *s, error_handler *eh)
 {
     int reg = -1;
     s += skip_spaces(s);
+    if (!is_last_word(s))
+    {
+        error(eh, ILLEGAL_ARGUMENT, 1, s);
+        return o_create_immidiate(0);
+    }
+
     trim_word(s);
     if (s[0] == '#')
     {
@@ -79,12 +92,12 @@ operand parse_operand(char *s, error_handler *eh)
         num = strtol(s, &extra, 10);
         if (extra[0] != '\0')
         {
-            error(eh, NOT_A_NUMBER);
+            error(eh, NOT_A_NUMBER,1, s);
             return o_create_immidiate(0);
         }
         else if (num > INT16_MAX || num < INT16_MIN)
         {
-            error(eh, NUMBER_OUT_OF_RANGE);
+            error(eh, NUMBER_OUT_OF_RANGE,1, s);
             return o_create_immidiate(0);
         }
         else
@@ -118,23 +131,16 @@ operand parse_operand(char *s, error_handler *eh)
                 s[i] = '\0';
                 r = s + i + 1;
                 r += skip_spaces(r);
-                if (is_last_word(r))
+
+                trim_word(r);
+                if (-1 != (reg = get_reg(r)))
                 {
-                    trim_word(r);
-                    if (-1 != (reg = get_reg(r)))
-                    {
-                        return o_create_index_1(s, reg);
-                    }
-                    else
-                    {
-                        error(eh, UNKNOWN_REGISTER);
-                        return o_create_index_1(s, 0);
-                    }
+                    return o_create_index_1(s, reg);
                 }
                 else
                 {
-                    error(eh, ILLEGAL_ARGUMENT);
-                    o_create_index_1(s, reg);
+                    error(eh, UNKNOWN_REGISTER,1, r);
+                    return o_create_index_1(s, 0);
                 }
             }
             else

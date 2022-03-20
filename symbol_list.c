@@ -1,3 +1,10 @@
+/**
+ * @file symbol_list.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Symbol list implementation using linked list
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -41,11 +48,12 @@ int s_set_name(symbol *s, char *name)
     s->name = dupstr(name);
     return 1;
 }
-symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribute attribute)
+symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribute attribute, error_handler *eh)
 {
     symbol *s = malloc(sizeof(symbol));
     if (!s_set_name(s, name))
     {
+        error(eh, INVALID_SYMBOL, 1, name);
         return NULL;
         s_destroy(s);
     }
@@ -56,10 +64,6 @@ symbol *s_create(char *name, uint16_t address, symbol_type type, symbol_attribut
     return s;
 }
 
-int s_get_name_length(symbol *s)
-{
-    return strlen(s->name);
-}
 symbol_attribute s_get_attribute(symbol *s)
 {
     return s->attribute;
@@ -107,7 +111,7 @@ void sl_append(symbol_list *sl, symbol *s, error_handler *eh)
             {
                 if (ptr->attribute == EXTERNAL)
                 {
-                    error(eh, EXTERN_DEFINED_IN_FILE);
+                    error(eh, EXTERN_DEFINED_IN_FILE, 0);
                 }
                 else
                 {
@@ -118,21 +122,27 @@ void sl_append(symbol_list *sl, symbol *s, error_handler *eh)
                     }
                     else
                     {
-                        error(eh, DUPLICATE_LABEL);
+                        error(eh, DUPLICATE_LABEL, 0);
                     }
                 }
             }
             else
             {
                 /* if no address was supplied, it must be a ".entry SYMBOL" or ".extern SYMBOL" */
-
-                if ((s->attribute | ptr->attribute) == 3) /* 01|10 == 11 */
+                if (ptr->attribute == EXTERNAL && s->type != UNKNOWN)
                 {
-                    error(eh, EXTERNAL_AND_ENTRY);
+                    error(eh, EXTERN_DEFINED_IN_FILE, 0);
                 }
                 else
-                { /* 00|XX, XX|XX */
-                    ptr->attribute = s->attribute;
+                {
+                    if ((s->attribute | ptr->attribute) == 3) /* 01|10 == 11 */
+                    {
+                        error(eh, EXTERNAL_AND_ENTRY, 0);
+                    }
+                    else
+                    { /* 00|XX, XX|XX */
+                        ptr->attribute = s->attribute;
+                    }
                 }
             }
 
@@ -223,35 +233,3 @@ symbol *s_get_entry(symbol *s)
 {
     return get_entry(s->next);
 }
-
-/*int main(int argc, char const *argv[])
-{
-    symbol_list *list = sl_create();
-    symbol *s = s_create("LIST", 0, UNKNOWN, ENTRY);
-    sl_append(list,s);
-    s = s_create("W", 0, UNKNOWN, EXTERNAL);
-    sl_append(list,s);
-    s = s_create("MAIN", 100, CODE, NONE);
-    sl_append(list,s);
-    s = s_create("LOOP", 104, CODE, NONE);
-    sl_append(list,s);
-    s = s_create("MAIN", 0, UNKNOWN, ENTRY);
-    sl_append(list,s);
-    s = s_create("END", 140, CODE, NONE);
-    sl_append(list,s);
-    s = s_create("STR", 141, DATA, NONE);
-    sl_append(list,s);
-    s = s_create("LIST", 146, DATA, NONE);
-    sl_append(list,s);
-    s = s_create("K", 0, UNKNOWN, ENTRY);
-    sl_append(list,s);
-    s = s_create("K", 149, DATA, EXTERNAL);
-    sl_append(list,s);
-    sl_append(list,s);
-    s = s_create("val1", 0, UNKNOWN, EXTERNAL);
-    sl_append(list,s);
-
-    sl_destroy(list);
-    return 0;
-}
-*/

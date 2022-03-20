@@ -1,3 +1,10 @@
+/**
+ * @file instruction_list_pass1.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Implementation of the 1st pass instruction list using a linked list
+ */
+
 #include <stdlib.h>
 #include <ctype.h>
 #include "operand.h"
@@ -21,13 +28,19 @@ uint16_t il1_get_ic(instruction_list_pass1 *il1)
     return il1->ic;
 }
 
-instruction_pass1 *i1_create(opcode opcode, operand operands[2], int operand_count)
+instruction_pass1 *i1_create(opcode opcode, operand operands[2], int operand_count, error_handler *eh)
 {
-    instruction_pass1 *i1 = malloc(sizeof(instruction_pass1));
+    instruction_pass1 *i1;
+    if (!is_n_operands(opcode, operand_count))
+    {
+        error(eh, OPERAND_COUNT_MISMATCH,0); /* keep going to avoid segfaults in the future */
+    }
+    i1 = malloc(sizeof(instruction_pass1));
     i1->opcode = opcode;
     i1->operands[0] = operands[0];
     i1->operands[1] = operands[1];
     i1->operand_count = operand_count;
+    i1->line = eh_get_line(eh);
     i1->next = NULL;
     return i1;
 }

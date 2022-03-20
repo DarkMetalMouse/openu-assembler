@@ -1,5 +1,13 @@
+/**
+ * @file opcode.c
+ * @author DarkMetalMouse
+ * @date 2022-03-20
+ * Helper fuctions for opcodes
+ */
+
 #include "opcode.h"
 #include <string.h>
+#include "util.h"
 
 #define OPCODE_COUNT 16
 
@@ -89,4 +97,20 @@ int get_opcode_value(opcode opcode)
 int get_opcode_funct(opcode opcode)
 {
     return OPCODE_FUNCT[opcode];
+}
+
+int is_n_operands(opcode opcode, int n)
+{
+    switch (n)
+    {
+    /* all n operand opcodes are WITHIN unique ranges */
+    case 0:
+        return WITHIN(get_opcode_value(opcode), rts, stop);
+    case 1:
+        return WITHIN(get_opcode_value(opcode), clr, prn);
+    case 2:
+        return WITHIN(get_opcode_value(opcode), mov, lea);
+    default:
+        return 0;
+    }
 }
