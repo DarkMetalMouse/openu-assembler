@@ -33,7 +33,7 @@ instruction_pass1 *i1_create(opcode opcode, operand operands[2], int operand_cou
     instruction_pass1 *i1;
     if (!is_n_operands(opcode, operand_count))
     {
-        error(eh, OPERAND_COUNT_MISMATCH,0); /* keep going to avoid segfaults in the future */
+        error(eh, OPERAND_COUNT_MISMATCH, 0); /* keep going to avoid segfaults in the future */
     }
     i1 = malloc(sizeof(instruction_pass1));
     i1->opcode = opcode;
@@ -91,4 +91,21 @@ instruction_pass1 *il1_get_head(instruction_list_pass1 *il1)
 instruction_pass1 *i1_get_next(instruction_pass1 *i1)
 {
     return i1->next;
+}
+
+void i1_destroy(instruction_pass1 *i1)
+{
+    free(i1);
+}
+
+void il1_destroy(instruction_list_pass1 *il1)
+{
+    instruction_pass1 *ptr = il1->head;
+    while (ptr != NULL)
+    {
+        instruction_pass1 *tmp = ptr;
+        ptr = ptr->next;
+        i1_destroy(tmp);
+    }
+    free(il1);
 }

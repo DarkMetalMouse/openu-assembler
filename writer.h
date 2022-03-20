@@ -47,9 +47,11 @@ external_list *el_create();
  */
 void el_append(external_list *el, external_value *e);
 
+void el_destroy(external_list *el);
+
 /**
  * @brief write the .ent file
- * 
+ *
  * @param fname the name of the file
  * @param sl the symbol list
  */
@@ -57,7 +59,7 @@ void write_entries(char *fname, symbol_list *sl);
 
 /**
  * @brief write the .ext file
- * 
+ *
  * @param fname the name of the file
  * @param el the external list
  */
@@ -65,7 +67,7 @@ void write_externs(char *fname, external_list *el);
 
 /**
  * @brief write the .ob file
- * 
+ *
  * @param fname the name of the file
  * @param inst_list the 2nd pass instruction list
  * @param inst_count the number of instructions
